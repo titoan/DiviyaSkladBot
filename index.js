@@ -10,16 +10,19 @@ const bot = new Bot(token);
 
 let tableInfo = new TableInfo();
 
-bot.command("start", async (ctx) => {
-  
-  let instrumentsArr = tableInfo.getInstruments();
-  console.log(instrumentsArr)
-
+bot.command("start", async (ctx) => {  
     await ctx.reply("Выберите действие, которое желаете совершить:", { reply_markup: mainMenu});
   });
 
-  bot.hears("Склад материалов", ctx=>{
-    ctx.reply("dasdasds")
+  bot.hears("Склад инструментов", ctx=>{   
+    ctx.reply(`Вы на складе инструментов
+
+Всего доуступно инструментов:
+
+Название - EN/UA
+------------------
+${tableInfo.instrumentsInfoStr()}
+    `)
   })
 
   bot.start();
