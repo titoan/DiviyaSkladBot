@@ -6,11 +6,15 @@ function TableInfo() {
   this.jsonSheet = XLSX.utils.sheet_to_json(this.worksheet);
   this.instruments = [];
 
-  this.getInstruments = function () {
-    return this.jsonSheet.map(
-      (item) => `${item["Инструменты готовые к отправке"]}`
-    );
-  };
+  this.findObj = function(propName){   
+    for(item of this.jsonSheet){
+      if(item['Инструменты готовые к отправке'] == propName){
+        console.log(item)
+      }
+    }
+  }
+
+  this.getInstruments =  () => this.jsonSheet.map((item) => `${item["Инструменты готовые к отправке"]}`);  
 
   this.getInstrumentsNumEN = function () {
     return this.jsonSheet.map((item) => `${item["В наличии ENG"]}`);
@@ -19,7 +23,6 @@ function TableInfo() {
   this.getInstrumentsNumUA = function () {
     return this.jsonSheet.map((item) => `${item["В наличии UA"]}`);
   };
-
 
   this.instrumentsInfoStr = function () {
     let arr = [];
