@@ -1,20 +1,21 @@
+const { Bot } = require("grammy");
 const XLSX = require("xlsx");
 
 function TableInfo() {
   this.workbook = XLSX.readFile("data/dataTable.xlsx");
-  this.worksheet = this.workbook.Sheets.store;
+  this.worksheet = this.workbook.Sheets.ready_to_sale;
   this.jsonSheet = XLSX.utils.sheet_to_json(this.worksheet);
-  this.instruments = [];
+  this.instruments = []; 
 
-  this.findObj = function(propName){   
+  this.findInstrument = function(propName){   
     for(item of this.jsonSheet){
-      if(item['Инструменты готовые к отправке'] == propName){
-        console.log(item)
+      if(item['Инструменты'] == propName){
+        return item
       }
     }
   }
 
-  this.getInstruments =  () => this.jsonSheet.map((item) => `${item["Инструменты готовые к отправке"]}`);  
+  this.getInstruments =  () => this.jsonSheet.map((item) => `${item["Инструменты"]}`);  
 
   this.getInstrumentsNumEN = function () {
     return this.jsonSheet.map((item) => `${item["В наличии ENG"]}`);
@@ -36,6 +37,8 @@ function TableInfo() {
   };
 }
 
+
 module.exports = {
   TableInfo,
+  // getAddInstrument
 };

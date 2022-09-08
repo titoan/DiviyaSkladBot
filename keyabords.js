@@ -1,34 +1,39 @@
 const { Keyboard, InlineKeyboard } = require("grammy");
 const { Menu, MenuRange } = require("@grammyjs/menu");
-const {TableInfo} = require('./dataObj')
+const { TableInfo } = require("./dataObj");
 
 let tableInfo = new TableInfo();
 
 const mainMenu = new Keyboard()
-.text("Склад материалов").row()
-.text("Склад инструментов").row()
-.text("Продажа")
+  .text("Склад материалов")
+  .row()
+  .text("Склад инструментов")
+  .row()
+  .text("Продажа");
 
-const skladMenu = new InlineKeyboard()
-.text('Добавить инструмент на склад', 'add_instrument')
+const skladMenu = new InlineKeyboard().text(
+  "Добавить инструмент на склад",
+  "add_instrument"
+);
 
 const addInstrumentMenu = new InlineKeyboard()
-  .text("Fire").row()
-  .text("Ether").row()
-  .text("Waterfall").row()
-  .text("Eternal love").row()
-  .text("Alchemy").row()
-  .text("Infinity").row()
-
+  .text("Fire", "add__Fire")
+  .row()
+  .text("Ether-Acril", "add__Ether-Acril")
+  .row()
+  .text("Ether-Wood", "add__Ether-Wood")
+  .row()
+  .text("Waterfall", "add__Waterfall")
+  .row()
+  .text("Eternal-love", "add__Eternal-love")
+  .row()
+  .text("Alchemy", "add__Alchemy")
+  .row()
+  .text("Infinity", "add__Infinity")
+  .row();
 
 module.exports = {
-    mainMenu,
-    skladMenu,
-    addInstrumentMenu
-}
-
-
-
-
-
-
+  mainMenu,
+  skladMenu,
+  addInstrumentMenu,  
+};
