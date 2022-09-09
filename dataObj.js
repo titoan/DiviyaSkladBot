@@ -15,7 +15,9 @@ function TableInfo() {
     }
   }
 
-  this.getInstruments =  () => this.jsonSheet.map((item) => `${item["Инструменты"]}`);  
+  this.getInstruments =  () => this.jsonSheet.map((item) => {    
+    return `${item["Инструменты"]}`
+  });  
 
   this.getInstrumentsNumEN = function () {
     return this.jsonSheet.map((item) => `${item["В наличии ENG"]}`);
@@ -39,6 +41,5 @@ function TableInfo() {
 
 
 module.exports = {
-  TableInfo,
-  // getAddInstrument
+  TableInfo,  
 };

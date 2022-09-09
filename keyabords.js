@@ -1,8 +1,5 @@
 const { Keyboard, InlineKeyboard } = require("grammy");
 const { Menu, MenuRange } = require("@grammyjs/menu");
-const { TableInfo } = require("./dataObj");
-
-let tableInfo = new TableInfo();
 
 const mainMenu = new Keyboard()
   .text("Склад материалов")
@@ -32,8 +29,12 @@ const addInstrumentMenu = new InlineKeyboard()
   .text("Infinity", "add__Infinity")
   .row();
 
+const chooseRegion = new InlineKeyboard()
+.text("EN", "EN").text("UA", "UA");
+
 module.exports = {
   mainMenu,
   skladMenu,
-  addInstrumentMenu,  
+  addInstrumentMenu,
+  chooseRegion,
 };
