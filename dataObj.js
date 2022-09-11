@@ -5,7 +5,7 @@ function TableInfo() {
   this.workbook = XLSX.readFile("data/dataTable.xlsx");
   this.worksheet = this.workbook.Sheets.ready_to_sale;
   this.jsonSheet = XLSX.utils.sheet_to_json(this.worksheet);
-  this.instruments = []; 
+  this.userWorkbook;
 
   this.findInstrument = function(propName){   
     for(item of this.jsonSheet){
@@ -31,15 +31,27 @@ function TableInfo() {
     let arr = [];
     for (let i = 0; i < this.getInstruments().length; i++) {
       arr.push(
-        `${this.getInstruments()[i]} - ${this.getInstrumentsNumEN()[i]} / ${this.getInstrumentsNumUA()[i]} \n`
+        `🪗 ${this.getInstruments()[i]} - ${this.getInstrumentsNumEN()[i]} / ${this.getInstrumentsNumUA()[i]} \n`
       );
     }
     let str = `${arr}`.replace(/[,]/g, '')
     return str;
   };
+
+  this.addToTable = function(){
+    XLSX.utils.sheet_add_json(this.worksheet, this.jsonSheet);
+
+    this.worksheet["!cols"] = [ { wch: 25 } ];
+
+    XLSX.writeFile(this.workbook, "data/dataTable.xlsx");
+  }
 }
 
+function writePrevMsgId(ctx){
+  ctx.session.prevMsgId = ctx.message.message_id;  
+}
 
 module.exports = {
-  TableInfo,  
+  TableInfo,
+  writePrevMsgId
 };
