@@ -30,11 +30,15 @@ const addInstrumentMenu = new InlineKeyboard()
   .row();
 
 const chooseRegion = new InlineKeyboard()
-.text("EN", "EN").text("UA", "UA");
+.text("ENG", "ENG").text("UA", "UA");
+
+const writeTable = new InlineKeyboard()
+.text("Записать данные в таблицу", "write_to_table")
 
 module.exports = {
   mainMenu,
   skladMenu,
   addInstrumentMenu,
   chooseRegion,
+  writeTable
 };
