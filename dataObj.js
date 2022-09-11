@@ -3,29 +3,41 @@ const XLSX = require("xlsx");
 
 function TableInfo() {
   this.workbook = XLSX.readFile("data/dataTable.xlsx");
-  this.worksheet = this.workbook.Sheets.ready_to_sale;
-  this.jsonSheet = XLSX.utils.sheet_to_json(this.worksheet);
-  this.userWorkbook;
+  this.worksheet_Instruments = this.workbook.Sheets.ready_to_sale;
+  this.jsonSheet_Instruments = XLSX.utils.sheet_to_json(this.worksheet_Instruments);
+  this.worksheet_Components = this.workbook.Sheets.components;
+  this.jsonSheet_Components = XLSX.utils.sheet_to_json(this.worksheet_Components);
 
   this.findInstrument = function(propName){   
-    for(item of this.jsonSheet){
+    for(item of this.jsonSheet_Instruments){
       if(item['Инструменты'] == propName){
         return item
       }
     }
   }
 
-  this.getInstruments =  () => this.jsonSheet.map((item) => {    
-    return `${item["Инструменты"]}`
-  });  
+  this.getInstruments = () => this.jsonSheet_Instruments.map((item) => `${item["Инструменты"]}`);
 
-  this.getInstrumentsNumEN = function () {
-    return this.jsonSheet.map((item) => `${item["В наличии ENG"]}`);
-  };
+  this.getComponents = () => this.jsonSheet_Components.map(item => `${item["Комплектация"]}`);
 
-  this.getInstrumentsNumUA = function () {
-    return this.jsonSheet.map((item) => `${item["В наличии UA"]}`);
-  };
+  this.getComponentsNum = () => this.jsonSheet_Components.map(item => `${item["Количество"]}`)
+
+  this.getInstrumentsNumEN = () => this.jsonSheet_Instruments.map((item) => `${item["В наличии ENG"]}`);  
+
+  this.getInstrumentsNumUA = () => this.jsonSheet_Instruments.map((item) => `${item["В наличии UA"]}`);
+  
+  this.componentsInfoStr = function(){
+    // console.log(this.getComponents())
+    let arr = [];
+    for(let i = 0; i < this.getComponents().length; i++){
+      arr.push(
+        `${this.getComponents()[i]} - ${this.getComponentsNum()[i]} \n`
+      );
+    }
+
+    let str = `${arr}`.replace(/[,]/g, '');
+    return str;
+  }
 
   this.instrumentsInfoStr = function () {
     let arr = [];
@@ -39,9 +51,9 @@ function TableInfo() {
   };
 
   this.addToTable = function(){
-    XLSX.utils.sheet_add_json(this.worksheet, this.jsonSheet);
+    XLSX.utils.sheet_add_json(this.worksheet_Instruments, this.jsonSheet_Instruments);
 
-    this.worksheet["!cols"] = [ { wch: 25 } ];
+    this.worksheet_Instruments["!cols"] = [ { wch: 25 } ];
 
     XLSX.writeFile(this.workbook, "data/dataTable.xlsx");
   }

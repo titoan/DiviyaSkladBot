@@ -39,6 +39,7 @@ bot.command("start", async (ctx) => {
       reply_markup: mainMenu,
     }
   );
+
 });
 
 bot.hears("Склад инструментов", (ctx) => {
@@ -57,6 +58,10 @@ ${tableInfo.instrumentsInfoStr()}
     }
   );
 });
+
+bot.hears("Склад материалов", ctx=>{
+  ctx.reply(`${tableInfo.componentsInfoStr()}`); 
+})
 
 bot.on("callback_query:data", async (ctx) => {
   data = ctx.callbackQuery.data;
@@ -101,7 +106,7 @@ bot.on("callback_query:data", async (ctx) => {
     ctx.reply(`Результат ваших непосильных усилй записан в таблицу в виде целочисленного значения.
 
 Надеюсь, данный ряд совершённых действий имеет за собой не только некоторого рода завпечетленный факт условных показателей производительности, но и удовольствие
-    `)
+    `, {reply_markup:mainMenu})
   }
 });
 
