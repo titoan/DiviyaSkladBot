@@ -8,10 +8,11 @@ const mainMenu = new Keyboard()
   .row()
   .text("Продажа");
 
-const skladMenu = new InlineKeyboard().text(
-  "Добавить инструмент на склад",
-  "add_instrument"
-);
+const skladMenu = new InlineKeyboard()
+.text("Добавить инструмент на склад", "add_instrument");
+
+const materialMenu = new InlineKeyboard()
+.text("Добавить материал на склад", "add_material");
 
 const addInstrumentMenu = new InlineKeyboard()
   .text("Fire", "add__Fire")
@@ -40,5 +41,6 @@ module.exports = {
   skladMenu,
   addInstrumentMenu,
   chooseRegion,
-  writeTable
+  writeTable,
+  materialMenu
 };

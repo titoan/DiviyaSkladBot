@@ -27,12 +27,9 @@ function TableInfo() {
   this.getInstrumentsNumUA = () => this.jsonSheet_Instruments.map((item) => `${item["В наличии UA"]}`);
   
   this.componentsInfoStr = function(){
-    // console.log(this.getComponents())
     let arr = [];
     for(let i = 0; i < this.getComponents().length; i++){
-      arr.push(
-        `${this.getComponents()[i]} - ${this.getComponentsNum()[i]} \n`
-      );
+      arr.push(`🎼 ${this.getComponents()[i]} — ${this.getComponentsNum()[i]}\n`);
     }
 
     let str = `${arr}`.replace(/[,]/g, '');
@@ -43,7 +40,7 @@ function TableInfo() {
     let arr = [];
     for (let i = 0; i < this.getInstruments().length; i++) {
       arr.push(
-        `🪗 ${this.getInstruments()[i]} - ${this.getInstrumentsNumEN()[i]} / ${this.getInstrumentsNumUA()[i]} \n`
+        `🪗 ${this.getInstruments()[i]} — ${this.getInstrumentsNumEN()[i]} / ${this.getInstrumentsNumUA()[i]} \n`
       );
     }
     let str = `${arr}`.replace(/[,]/g, '')

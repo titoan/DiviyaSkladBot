@@ -4,12 +4,12 @@ require("dotenv").config();
 let {
   mainMenu,
   skladMenu,
+  materialMenu,
   addInstrumentMenu,
   chooseRegion,
   writeTable
 } = require("./keyabords");
 let { TableInfo } = require("./dataObj");
-// let { TableInfo, getAddInstrument } = require("./dataObj");
 
 const token = process.env.BOT_TOKEN;
 const bot = new Bot(token);
@@ -47,10 +47,10 @@ bot.hears("Склад инструментов", (ctx) => {
     `Вы на складе инструментов
 Здесь светло и просторно. Вдоль стен рядами стоят стелажи. На полках разложены запакованные инструменты. 
 
-Всего доуступно инструментов:
+Всего доступно инструментов:
 
 Название - ENG/UA
-------------------
+——————————
 ${tableInfo.instrumentsInfoStr()}
     `,
     {
@@ -60,7 +60,12 @@ ${tableInfo.instrumentsInfoStr()}
 });
 
 bot.hears("Склад материалов", ctx=>{
-  ctx.reply(`${tableInfo.componentsInfoStr()}`); 
+  ctx.reply(`Вы на складе инструментов
+Здесь светло и просторно. Вдоль стен рядами стоят стелажи. На полках разложены готовые к сборке материалы. 
+  
+Всего доступно материалов:
+——————————
+${tableInfo.componentsInfoStr()}`,{reply_markup: materialMenu}); 
 })
 
 bot.on("callback_query:data", async (ctx) => {
@@ -74,8 +79,8 @@ bot.on("callback_query:data", async (ctx) => {
     });
   }
 
-  let regexp = `${data}`.match(/add__(.+)/g);
-  if (data == regexp) {
+  let addInstrument_Query = `${data}`.match(/add__(.+)/g);
+  if (data == addInstrument_Query) {
     data = data.match(/[A-Z].*/g);
     bot.api.deleteMessage(ctx.chat.id,ctx.update.callback_query.message.message_id);
     ctx.session.instrument = tableInfo.findInstrument(data);
@@ -95,7 +100,7 @@ bot.on("callback_query:data", async (ctx) => {
     bot.api.deleteMessage(ctx.chat.id,ctx.update.callback_query.message.message_id);
 
     bot.api.sendMessage(ctx.chat.id,
-      `Вы выбрали <b>${ctx.session.instrument["Инструменты"]}</b>
+`Вы выбрали <b>${ctx.session.instrument["Инструменты"]}</b>
 Регион: <b>${ctx.session.region}</b>
         
 Сколько инстурментов желаете добавить?`,{parse_mode:"HTML"});
@@ -110,15 +115,12 @@ bot.on("callback_query:data", async (ctx) => {
   }
 });
 
-// Перепиши всё внутри находящееся бога ради!!!
 bot.hears(/[0-9]/, (ctx) => {
-  if (ctx.session.addInstrument) {   
+  if (ctx.session.addInstrument) {
+    let region = `В наличии ${ctx.session.region}`;
 
-    let str = `В наличии ${ctx.session.region}`;
-    let num_1 = ctx.session.instrument[str];    
-    let num_2 = ctx.message.text;
-    let sum = +num_1 + +num_2;
-    ctx.session.instrument[`В наличии ${ctx.session.region}`] = sum;
+    let total = [parseInt(ctx.session.instrument[region]), parseInt(ctx.message.text)].reduce((prev, curr) => prev + curr);
+    ctx.session.instrument[`В наличии ${ctx.session.region}`] = total;
 
     ctx.reply(
       `На склад было добавлено ${ctx.message.text} инструментов ${ctx.session.instrument["Инструменты"]}`,{reply_markup:writeTable}
