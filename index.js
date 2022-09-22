@@ -7,7 +7,8 @@ let {
   materialMenu,
   addInstrumentMenu,
   chooseRegion,
-  writeTable
+  writeTable,
+  addMaterialMenu
 } = require("./keyabords");
 let { TableInfo } = require("./dataObj");
 
@@ -19,8 +20,10 @@ let tableInfo = new TableInfo();
 function initial() {
   return {
     addInstrument: false,
+    addMaterial: false,
     count: 0,
     instrument: {},
+    material:{},
     region: "",
     prevMsgId: 0,
   };
@@ -71,16 +74,31 @@ ${tableInfo.componentsInfoStr()}`,{reply_markup: materialMenu});
 bot.on("callback_query:data", async (ctx) => {
   data = ctx.callbackQuery.data;
 
+  // Условия добавления на склад инстурментов и материалов
   if (data === "add_instrument") {
     bot.api.deleteMessage(ctx.chat.id,ctx.update.callback_query.message.message_id);
     ctx.session.addInstrument = true;
+    ctx.session.addMaterial = false;
     ctx.reply(`🪗 Какой строй желаете добавить на склад? 🪗`, {
       reply_markup: addInstrumentMenu,
     });
+  }else if(data === "add_material"){
+    bot.api.deleteMessage(ctx.chat.id,ctx.update.callback_query.message.message_id);
+    ctx.session.addMaterial = true;
+    ctx.session.addInstrument = false;
+    ctx.reply(`🪗 Какой материал желаете добавить на склад? 🪗`, {
+      reply_markup: addMaterialMenu,
+    });
+    
   }
 
+// Переработать логику определения того, что добавляется на склад
+// Есть две категории: 1.Инстурменты 2.Материалы
+// Ориентироваться на значения ctx.session
+
+if(ctx.session.addInstrument){
   let addInstrument_Query = `${data}`.match(/add__(.+)/g);
-  if (data == addInstrument_Query) {
+  if (data == addInstrument_Query) {    
     data = data.match(/[A-Z].*/g);
     bot.api.deleteMessage(ctx.chat.id,ctx.update.callback_query.message.message_id);
     ctx.session.instrument = tableInfo.findInstrument(data);
@@ -94,6 +112,26 @@ bot.on("callback_query:data", async (ctx) => {
       }
     );
   }
+}
+
+if(ctx.session.addMaterial){
+  let addMaterial_Query = `${data}`.match(/add__(.+)/g);
+  if(data == addMaterial_Query){
+    data = data.match(/[A-ZА-Я].*/g);
+    bot.api.deleteMessage(ctx.chat.id,ctx.update.callback_query.message.message_id);     
+    ctx.session.material = tableInfo.findMaterial(data);
+    
+    ctx.reply(
+      `Вы выбрали <b>${ctx.session.material["Комплектация"]}</b>
+Какое количество материала желаете добавить?`, {parse_mode: "HTML"});
+  }
+}
+
+
+
+//else if(data == addMaterial_Query){
+  //   console.log('Добавь материал')
+  // }
 
   if (data === "ENG" || data === "UA") {
     ctx.session.region = data;

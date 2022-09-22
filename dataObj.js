@@ -16,6 +16,15 @@ function TableInfo() {
     }
   }
 
+  this.findMaterial = function(propName){
+    for(item of this.jsonSheet_Components){
+      // console.log(item)
+      if(item['Комплектация'] == propName){
+        return item
+      }
+    }
+  }
+
   this.getInstruments = () => this.jsonSheet_Instruments.map((item) => `${item["Инструменты"]}`);
 
   this.getComponents = () => this.jsonSheet_Components.map(item => `${item["Комплектация"]}`);

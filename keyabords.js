@@ -30,6 +30,18 @@ const addInstrumentMenu = new InlineKeyboard()
   .text("Infinity", "add__Infinity")
   .row();
 
+const addMaterialMenu = new InlineKeyboard()
+.text('Bag_стандарт', 'add__Bag стандарт').row()
+.text('Bag_эфир', 'add__Bag эфир').row()
+.text('Box_Divya', 'add__Box Divya').row()
+.text('Планки_дерево_Б', 'add__Планки дерево Б').row()
+.text('Планки_дерево_М', 'add__Дерево М').row()
+.text('Планки_акрил_Б', 'add__Планки Aкрил Б').row()
+.text('Планки_акрил_М', 'add__Планки Акрил М').row()
+.text('Подставки', 'add__Подставки').row()
+.text('Подставки_акрил', 'add__Подставки акрил').row()
+.text('Стики', 'add__Стики').row()
+
 const chooseRegion = new InlineKeyboard()
 .text("ENG", "ENG").text("UA", "UA");
 
@@ -42,5 +54,6 @@ module.exports = {
   addInstrumentMenu,
   chooseRegion,
   writeTable,
-  materialMenu
+  materialMenu,
+  addMaterialMenu
 };
