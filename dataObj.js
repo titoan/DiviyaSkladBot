@@ -56,10 +56,18 @@ function TableInfo() {
     return str;
   };
 
-  this.addToTable = function(){
+  this.addToTable_Instruments = function(){
     XLSX.utils.sheet_add_json(this.worksheet_Instruments, this.jsonSheet_Instruments);
 
-    this.worksheet_Instruments["!cols"] = [ { wch: 25 } ];
+    this.worksheet_Instruments["!cols"] = [ { wch: 25 } ]; // В теории должно давать каждой колонке ширину в 25 символов, но отрабатывает только на первой  
+
+    XLSX.writeFile(this.workbook, "data/dataTable.xlsx");
+  }
+
+  this.addToTable_Materials = function(){
+    XLSX.utils.sheet_add_json(this.worksheet_Components, this.jsonSheet_Components);
+
+    this.worksheet_Instruments["!cols"] = [ { wch: 25 } ]; // В теории должно давать каждой колонке ширину в 25 символов, но отрабатывает только на первой  
 
     XLSX.writeFile(this.workbook, "data/dataTable.xlsx");
   }
