@@ -97,11 +97,11 @@ function TableInfo() {
       "Стики",
     ];
 
-    materials.forEach((item) => {
-      let res = this.jsonSheet_Components.filter(
-        (material) => material["Комплектация"] == item
+    materials.forEach((material) => {
+      let findMaterial = this.jsonSheet_Components.filter(
+        (item) => item["Комплектация"] == material        
       );
-      console.log(res[0]["Количество"] - number);
+      findMaterial[0]["Количество"] = findMaterial[0]["Количество"] - number
     });
   };
 }

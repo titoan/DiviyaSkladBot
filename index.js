@@ -32,7 +32,7 @@ function initial() {
 bot.use(session({ initial }));
 
 bot.command("start", async (ctx) => {
-  tableInfo.writeOff_Materials(1)
+ 
 
   await ctx.reply(
     `Вы находитесь в мастерской. Вероятно, вы здесь не просто так и у вас на сегодняшний день запланирована масса разнообразнейших задач.
@@ -66,7 +66,7 @@ ${tableInfo.instrumentsInfoStr()}
 
 bot.hears("Склад материалов", (ctx) => {
   ctx.reply(
-    `Вы на складе инструментов
+    `Вы на складе материалов
 Здесь светло и просторно. Вдоль стен рядами стоят стелажи. На полках разложены готовые к сборке материалы. 
   
 Всего доступно материалов:
@@ -102,7 +102,7 @@ bot.on("callback_query:data", async (ctx) => {
     });
   }
 
-  //Проверка на выполнения условия для дбавления инстрмента; Выбор региона к которому относится инструмент
+  //Проверка на выполнения условия для дбавления инстрмента; Поиск выбранного инструмента; Выбор региона к которому относится инструмент
   if (ctx.session.addInstrument) {
     let addInstrument_Query = `${data}`.match(/add__(.+)/g);
     if (data == addInstrument_Query) {
@@ -129,8 +129,7 @@ bot.on("callback_query:data", async (ctx) => {
         ctx.chat.id,
         ctx.update.callback_query.message.message_id
       );
-// функция списания материалов со склада 
-// >>>>>>>> tableInfo.writeOff_Materials()  <<<<<<<<<
+
       bot.api.sendMessage(
         ctx.chat.id,
 `Вы выбрали <b>${ctx.session.instrument["Инструменты"]}</b>
@@ -139,13 +138,21 @@ bot.on("callback_query:data", async (ctx) => {
 Сколько инстурментов желаете добавить?`,
         { parse_mode: "HTML" }
       );
+
+
     }
   }
 
+  // Окончательная запись в таблицу
   if (data === "write_to_table") {
     if (ctx.session.addInstrument) {
+
+      tableInfo.writeOff_Materials(ctx.session.count)
+      tableInfo.addToTable_Materials();
       tableInfo.addToTable_Instruments();
+
       ctx.session.addInstrument = false;
+
       ctx.reply(
         `Результат ваших непосильных усилй записан в таблицу в виде целочисленного значения.
   
@@ -155,7 +162,8 @@ bot.on("callback_query:data", async (ctx) => {
       );
     }
 
-    if (ctx.session.addMaterial) {
+
+    if (ctx.session.addMaterial) {      
       tableInfo.addToTable_Materials();
       ctx.session.addMaterial = false;
       ctx.reply(
@@ -197,6 +205,7 @@ bot.on("callback_query:data", async (ctx) => {
 bot.hears(/[0-9]/, (ctx) => {
   if (ctx.session.addInstrument) {
     let region = `В наличии ${ctx.session.region}`;
+    ctx.session.count = parseInt(ctx.message.text);
 
     let total = [
       parseInt(ctx.session.instrument[region]),
