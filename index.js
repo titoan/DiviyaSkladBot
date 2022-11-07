@@ -32,6 +32,8 @@ function initial() {
 bot.use(session({ initial }));
 
 bot.command("start", async (ctx) => {
+  tableInfo.writeOff_Materials(1)
+
   await ctx.reply(
     `Вы находитесь в мастерской. Вероятно, вы здесь не просто так и у вас на сегодняшний день запланирована масса разнообразнейших задач.
 
@@ -43,8 +45,6 @@ bot.command("start", async (ctx) => {
     }
   );
 
-  let a = tableInfo.findMaterial('Планки дерево Б')
-  console.log(a['Количество'])
 });
 
 bot.hears("Склад инструментов", (ctx) => {
@@ -79,7 +79,7 @@ ${tableInfo.componentsInfoStr()}`,
 bot.on("callback_query:data", async (ctx) => {
   data = ctx.callbackQuery.data;
 
-  // Условия добавления на склад инстурментов и материалов
+  // Условия добавления на склад инстурментов
   if (data === "add_instrument") {
     bot.api.deleteMessage(
       ctx.chat.id,
@@ -129,7 +129,8 @@ bot.on("callback_query:data", async (ctx) => {
         ctx.chat.id,
         ctx.update.callback_query.message.message_id
       );
-
+// функция списания материалов со склада 
+// >>>>>>>> tableInfo.writeOff_Materials()  <<<<<<<<<
       bot.api.sendMessage(
         ctx.chat.id,
 `Вы выбрали <b>${ctx.session.instrument["Инструменты"]}</b>
