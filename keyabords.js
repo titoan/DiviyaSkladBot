@@ -9,10 +9,12 @@ const mainMenu = new Keyboard()
   .text("Продажа");
 
 const skladMenu = new InlineKeyboard()
-.text("Добавить инструмент на склад", "add_instrument");
+.text("Добавить инструмент на склад", "add_instrument")
+.text("Забрать инструмент со склада", "rmv_instrument");
 
 const materialMenu = new InlineKeyboard()
-.text("Добавить материал на склад", "add_material");
+.text("Добавить материал на склад", "add_material")
+.text("Забрать материал cо склада", "rmv_material")
 
 const addInstrumentMenu = new InlineKeyboard()
   .text("Fire", "add__Fire")
@@ -41,6 +43,7 @@ const addMaterialMenu = new InlineKeyboard()
 .text('Подставки', 'add__Подставки').row()
 .text('Подставки_акрил', 'add__Подставки акрил').row()
 .text('Стики', 'add__Стики').row()
+
 
 const chooseRegion = new InlineKeyboard()
 .text("ENG", "ENG").text("UA", "UA");

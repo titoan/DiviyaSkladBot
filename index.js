@@ -42,6 +42,9 @@ bot.command("start", async (ctx) => {
       reply_markup: mainMenu,
     }
   );
+
+  let a = tableInfo.findMaterial('Планки дерево Б')
+  console.log(a['Количество'])
 });
 
 bot.hears("Склад инструментов", (ctx) => {
@@ -129,10 +132,10 @@ bot.on("callback_query:data", async (ctx) => {
 
       bot.api.sendMessage(
         ctx.chat.id,
-        `Вы выбрали <b>${ctx.session.instrument["Инструменты"]}</b>
-  Регион: <b>${ctx.session.region}</b>
+`Вы выбрали <b>${ctx.session.instrument["Инструменты"]}</b>
+Регион: <b>${ctx.session.region}</b>
         
-  Сколько инстурментов желаете добавить?`,
+Сколько инстурментов желаете добавить?`,
         { parse_mode: "HTML" }
       );
     }
@@ -208,10 +211,7 @@ bot.hears(/[0-9]/, (ctx) => {
   }
 
   if (ctx.session.addMaterial) {
-    let total = [
-      parseInt(ctx.session.material["Количество"]),
-      parseInt(ctx.message.text),
-    ].reduce((prev, curr) => prev + curr);
+    let total = [ parseInt(ctx.session.material["Количество"]), parseInt(ctx.message.text)].reduce((prev, curr) => prev + curr);
 
     ctx.session.material["Количество"] = total;
 
