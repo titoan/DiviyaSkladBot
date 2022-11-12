@@ -11,6 +11,7 @@ let {
   addMaterialMenu,
 } = require("./keyabords");
 let { TableInfo } = require("./dataObj");
+let { saleInstrument } = require("./functions")
 
 const token = process.env.BOT_TOKEN;
 const bot = new Bot(token);
@@ -21,6 +22,7 @@ function initial() {
   return {
     addInstrument: false,
     addMaterial: false,
+    saleInstrument: false,
     count: 0,
     instrument: {},
     material: {},
@@ -42,9 +44,6 @@ bot.command("start", async (ctx) => {
       reply_markup: mainMenu,
     }
   );
-
-  let a = tableInfo.findMaterial('Планки дерево Б')
-  console.log(a['Количество'])
 });
 
 bot.hears("Склад инструментов", (ctx) => {
@@ -85,32 +84,48 @@ bot.on("callback_query:data", async (ctx) => {
       ctx.chat.id,
       ctx.update.callback_query.message.message_id
     );
+
     ctx.session.addInstrument = true;
     ctx.session.addMaterial = false;
     ctx.reply(`🪗 Какой строй желаете добавить на склад? 🪗`, {
       reply_markup: addInstrumentMenu,
     });
+
   } else if (data === "add_material") {
     bot.api.deleteMessage(
       ctx.chat.id,
       ctx.update.callback_query.message.message_id
     );
+
     ctx.session.addMaterial = true;
     ctx.session.addInstrument = false;
     ctx.reply(`🪗 Какой материал желаете добавить на склад? 🪗`, {
       reply_markup: addMaterialMenu,
     });
+  } else if (data === "sale_instrument") {
+
+    ctx.session.saleInstrument = true;
+    ctx.session.addMaterial = false;
+    ctx.session.addInstrument = false;
+
+    ctx.reply(`🪗 Какой инструмент желаете продать? 🪗`, {
+      reply_markup: addInstrumentMenu,
+    });
   }
 
   //Проверка на выполнения условия для дбавления инстрмента; Выбор региона к которому относится инструмент
   if (ctx.session.addInstrument) {
+
     let addInstrument_Query = `${data}`.match(/add__(.+)/g);
     if (data == addInstrument_Query) {
-      data = data.match(/[A-Z].*/g);
+
+      data = data.match(/[A-Z].*/g);// извлечение названия инстурмента
+
       bot.api.deleteMessage(
         ctx.chat.id,
         ctx.update.callback_query.message.message_id
       );
+
       ctx.session.instrument = tableInfo.findInstrument(data);
       ctx.reply(
         `Вы выбрали <b>${ctx.session.instrument["Инструменты"]}</b>
@@ -132,37 +147,11 @@ bot.on("callback_query:data", async (ctx) => {
 
       bot.api.sendMessage(
         ctx.chat.id,
-`Вы выбрали <b>${ctx.session.instrument["Инструменты"]}</b>
+        `Вы выбрали <b>${ctx.session.instrument["Инструменты"]}</b>
 Регион: <b>${ctx.session.region}</b>
         
 Сколько инстурментов желаете добавить?`,
         { parse_mode: "HTML" }
-      );
-    }
-  }
-
-  if (data === "write_to_table") {
-    if (ctx.session.addInstrument) {
-      tableInfo.addToTable_Instruments();
-      ctx.session.addInstrument = false;
-      ctx.reply(
-        `Результат ваших непосильных усилй записан в таблицу в виде целочисленного значения.
-  
-  Надеюсь, данный ряд совершённых действий имеет за собой не только некоторого рода завпечетленный факт условных показателей производительности, но и удовольствие
-      `,
-        { reply_markup: mainMenu }
-      );
-    }
-
-    if (ctx.session.addMaterial) {
-      tableInfo.addToTable_Materials();
-      ctx.session.addMaterial = false;
-      ctx.reply(
-        `Результат ваших непосильных усилй записан в таблицу в виде целочисленного значения.
-  
-  Надеюсь, данный ряд совершённых действий имеет за собой не только некоторого рода завпечетленный факт условных показателей производительности, но и удовольствие
-      `,
-        { reply_markup: mainMenu }
       );
     }
   }
@@ -186,9 +175,54 @@ bot.on("callback_query:data", async (ctx) => {
 Какое количество материала желаете добавить?`,
           { parse_mode: "HTML" }
         );
-      } catch (e) {
-        console.log(e);
+      } catch (err) {
+        console.log(`Ошибка при выборе материала ${err}`);
       }
+    }
+  }
+
+  if (ctx.session.saleInstrument) {
+    saleInstrument(ctx, data, bot, tableInfo)
+  }
+
+  // Запись результат в таблицу
+  if (data === "write_to_table") {
+    if (ctx.session.addInstrument) {
+      tableInfo.addToTable_Instruments();
+      ctx.session.addInstrument = false;
+      ctx.reply(
+        `Результат ваших непосильных усилй записан в таблицу в виде целочисленного значения.
+  
+  Надеюсь, данный ряд совершённых действий имеет за собой не только некоторого рода завпечетленный факт условных показателей производительности, но и удовольствие
+      `,
+        { reply_markup: mainMenu }
+      );
+    }
+
+    if (ctx.session.saleInstrument) {
+      tableInfo.addToTable_Instruments();
+      ctx.session.saleInstrument = false;
+
+      ctx.reply(
+        `Результат ваших непосильных усилй записан в таблицу в виде целочисленного значения.
+  
+  Надеюсь, данный ряд совершённых действий имеет за собой не только некоторого рода завпечетленный факт условных показателей производительности, но и удовольствие
+      `,
+        { reply_markup: mainMenu }
+      );
+
+    }
+
+    if (ctx.session.addMaterial) {
+      tableInfo.addToTable_Materials();
+      ctx.session.addMaterial = false;
+      ctx.reply(
+        `Результат ваших непосильных усилй записан в таблицу в виде целочисленного значения.
+  
+  Надеюсь, данный ряд совершённых действий имеет за собой не только некоторого рода завпечетленный факт условных показателей производительности, но и удовольствие
+      `,
+        { reply_markup: mainMenu }
+      );
     }
   }
 });
@@ -211,7 +245,7 @@ bot.hears(/[0-9]/, (ctx) => {
   }
 
   if (ctx.session.addMaterial) {
-    let total = [ parseInt(ctx.session.material["Количество"]), parseInt(ctx.message.text)].reduce((prev, curr) => prev + curr);
+    let total = [parseInt(ctx.session.material["Количество"]), parseInt(ctx.message.text)].reduce((prev, curr) => prev + curr);
 
     ctx.session.material["Количество"] = total;
 
@@ -220,6 +254,23 @@ bot.hears(/[0-9]/, (ctx) => {
       { reply_markup: writeTable }
     );
   }
+
+  if (ctx.session.saleInstrument) {
+    let region = `В наличии ${ctx.session.region}`;
+
+    let total = [
+      parseInt(ctx.session.instrument[region]),
+      parseInt(ctx.message.text),
+    ].reduce((prev, curr) => prev - curr);
+
+    ctx.session.instrument[`В наличии ${ctx.session.region}`] = total;
+
+    ctx.reply(
+      `Было продандо ${ctx.message.text} инструментов ${ctx.session.instrument["Инструменты"]}`,
+      { reply_markup: writeTable }
+    );
+  }
+
 });
 
 bot.start();

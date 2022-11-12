@@ -5,12 +5,12 @@ const mainMenu = new Keyboard()
   .text("Склад материалов")
   .row()
   .text("Склад инструментов")
-  .row()
-  .text("Продажа");
 
 const skladMenu = new InlineKeyboard()
 .text("Добавить инструмент на склад", "add_instrument")
-.text("Забрать инструмент со склада", "rmv_instrument");
+.text("Забрать инструмент со склада", "rmv_instrument")
+.row()
+.text("Продать инструмент", "sale_instrument")
 
 const materialMenu = new InlineKeyboard()
 .text("Добавить материал на склад", "add_material")
