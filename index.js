@@ -34,6 +34,8 @@ function initial() {
 bot.use(session({ initial }));
 
 bot.command("start", async (ctx) => {
+ 
+
   await ctx.reply(
     `Вы находитесь в мастерской. Вероятно, вы здесь не просто так и у вас на сегодняшний день запланирована масса разнообразнейших задач.
 
@@ -44,6 +46,7 @@ bot.command("start", async (ctx) => {
       reply_markup: mainMenu,
     }
   );
+
 });
 
 bot.hears("Склад инструментов", (ctx) => {
@@ -65,7 +68,7 @@ ${tableInfo.instrumentsInfoStr()}
 
 bot.hears("Склад материалов", (ctx) => {
   ctx.reply(
-    `Вы на складе инструментов
+    `Вы на складе материалов
 Здесь светло и просторно. Вдоль стен рядами стоят стелажи. На полках разложены готовые к сборке материалы. 
   
 Всего доступно материалов:
@@ -78,7 +81,7 @@ ${tableInfo.componentsInfoStr()}`,
 bot.on("callback_query:data", async (ctx) => {
   data = ctx.callbackQuery.data;
 
-  // Условия добавления на склад инстурментов и материалов
+  // Условия добавления на склад инстурментов
   if (data === "add_instrument") {
     bot.api.deleteMessage(
       ctx.chat.id,
@@ -113,7 +116,7 @@ bot.on("callback_query:data", async (ctx) => {
     });
   }
 
-  //Проверка на выполнения условия для дбавления инстрмента; Выбор региона к которому относится инструмент
+  //Проверка на выполнения условия для дбавления инстрмента; Поиск выбранного инструмента; Выбор региона к которому относится инструмент
   if (ctx.session.addInstrument) {
 
     let addInstrument_Query = `${data}`.match(/add__(.+)/g);
@@ -156,40 +159,16 @@ bot.on("callback_query:data", async (ctx) => {
     }
   }
 
-  // Добавление материала
-  if (ctx.session.addMaterial) {
-    let addMaterial_Query = `${data}`.match(/add__(.+)/g);
-    if (data == addMaterial_Query) {
-      data = data.match(/[A-ZА-Я].*/g);
-      bot.api.deleteMessage(
-        ctx.chat.id,
-        ctx.update.callback_query.message.message_id
-      );
-      ctx.session.material = tableInfo.findMaterial(data);
-
-      try {
-        ctx.reply(
-          `Вы выбрали <b>${ctx.session.material["Комплектация"]}</b>
-Сейчас на складе находится <b>${ctx.session.material["Количество"]}</b> единиц
-
-Какое количество материала желаете добавить?`,
-          { parse_mode: "HTML" }
-        );
-      } catch (err) {
-        console.log(`Ошибка при выборе материала ${err}`);
-      }
-    }
-  }
-
-  if (ctx.session.saleInstrument) {
-    saleInstrument(ctx, data, bot, tableInfo)
-  }
-
-  // Запись результат в таблицу
+  // Окончательная запись в таблицу
   if (data === "write_to_table") {
     if (ctx.session.addInstrument) {
+
+      tableInfo.writeOff_Materials(ctx.session.count)
+      tableInfo.addToTable_Materials();
       tableInfo.addToTable_Instruments();
+
       ctx.session.addInstrument = false;
+
       ctx.reply(
         `Результат ваших непосильных усилй записан в таблицу в виде целочисленного значения.
   
@@ -230,6 +209,7 @@ bot.on("callback_query:data", async (ctx) => {
 bot.hears(/[0-9]/, (ctx) => {
   if (ctx.session.addInstrument) {
     let region = `В наличии ${ctx.session.region}`;
+    ctx.session.count = parseInt(ctx.message.text);
 
     let total = [
       parseInt(ctx.session.instrument[region]),
