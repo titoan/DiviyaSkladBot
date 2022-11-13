@@ -133,7 +133,7 @@ bot.on("callback_query:data", async (ctx) => {
       ctx.reply(
         `Вы выбрали <b>${ctx.session.instrument["Инструменты"]}</b>
     
-      К какому региону отностися инструмент?`,
+К какому региону отностися инструмент?`,
         {
           reply_markup: chooseRegion,
           parse_mode: "HTML",
@@ -156,6 +156,30 @@ bot.on("callback_query:data", async (ctx) => {
 Сколько инстурментов желаете добавить?`,
         { parse_mode: "HTML" }
       );
+    }
+  }
+
+  if (ctx.session.addMaterial) {
+    let addMaterial_Query = `${data}`.match(/add__(.+)/g);
+    if (data == addMaterial_Query) {
+      data = data.match(/[A-ZА-Я].*/g);
+      bot.api.deleteMessage(
+        ctx.chat.id,
+        ctx.update.callback_query.message.message_id
+      );
+      ctx.session.material = tableInfo.findMaterial(data);
+
+      try {
+        ctx.reply(
+          `Вы выбрали <b>${ctx.session.material["Комплектация"]}</b>
+Сейчас на складе находится <b>${ctx.session.material["Количество"]}</b> единиц
+
+Какое количество материала желаете добавить?`,
+          { parse_mode: "HTML" }
+        );
+      } catch (e) {
+        console.log(e);
+      }
     }
   }
 
@@ -185,7 +209,7 @@ bot.on("callback_query:data", async (ctx) => {
       ctx.reply(
         `Результат ваших непосильных усилй записан в таблицу в виде целочисленного значения.
   
-  Надеюсь, данный ряд совершённых действий имеет за собой не только некоторого рода завпечетленный факт условных показателей производительности, но и удовольствие
+Надеюсь, данный ряд совершённых действий имеет за собой не только некоторого рода завпечетленный факт условных показателей производительности, но и удовольствие
       `,
         { reply_markup: mainMenu }
       );
