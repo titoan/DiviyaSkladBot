@@ -35,7 +35,7 @@ function saleInstrument(ctx, data, bot, tableInfo) {
             `Вы выбрали <b>${ctx.session.instrument["Инструменты"]}</b>
 Регион: <b>${ctx.session.region}</b>
 
-Сколько инстурментов желаете  продать?`,
+Сколько инстурментов желаете  ${ctx.session.removeInstrument ? 'изъять' : 'продать'}?`,
             { parse_mode: "HTML" }
         );
     }

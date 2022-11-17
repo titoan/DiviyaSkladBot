@@ -11,7 +11,7 @@ let {
   addMaterialMenu,
 } = require("./keyabords");
 let { TableInfo } = require("./dataObj");
-let { saleInstrument } = require("./functions")
+let { saleInstrument } = require("./functions");
 
 const token = process.env.BOT_TOKEN;
 const bot = new Bot(token);
@@ -23,6 +23,7 @@ function initial() {
     addInstrument: false,
     addMaterial: false,
     saleInstrument: false,
+    removeInstrument: false,
     count: 0,
     instrument: {},
     material: {},
@@ -34,8 +35,6 @@ function initial() {
 bot.use(session({ initial }));
 
 bot.command("start", async (ctx) => {
- 
-
   await ctx.reply(
     `Вы находитесь в мастерской. Вероятно, вы здесь не просто так и у вас на сегодняшний день запланирована масса разнообразнейших задач.
 
@@ -46,7 +45,6 @@ bot.command("start", async (ctx) => {
       reply_markup: mainMenu,
     }
   );
-
 });
 
 bot.hears("Склад инструментов", (ctx) => {
@@ -89,11 +87,12 @@ bot.on("callback_query:data", async (ctx) => {
     );
 
     ctx.session.addInstrument = true;
-    ctx.session.addMaterial = false;
+    tx.session.addMaterial = false;
+    ctx.session.removeInstrument = false;
+    ctx.session.saleInstrument = false;
     ctx.reply(`🪗 Какой строй желаете добавить на склад? 🪗`, {
       reply_markup: addInstrumentMenu,
     });
-
   } else if (data === "add_material") {
     bot.api.deleteMessage(
       ctx.chat.id,
@@ -102,27 +101,38 @@ bot.on("callback_query:data", async (ctx) => {
 
     ctx.session.addMaterial = true;
     ctx.session.addInstrument = false;
+    ctx.session.removeInstrument = false;
+    ctx.session.saleInstrument = false;
+
     ctx.reply(`🪗 Какой материал желаете добавить на склад? 🪗`, {
       reply_markup: addMaterialMenu,
     });
-  } else if (data === "sale_instrument") {
-
+  } else if (data === "sale_instrument" ) {
     ctx.session.saleInstrument = true;
     ctx.session.addMaterial = false;
     ctx.session.addInstrument = false;
+    ctx.session.removeInstrument = false;
+
 
     ctx.reply(`🪗 Какой инструмент желаете продать? 🪗`, {
+      reply_markup: addInstrumentMenu,
+    });
+  } else if (data === "rmv_instrument") {
+    ctx.session.removeInstrument = true;
+    ctx.session.saleInstrument = false;
+    ctx.session.addMaterial = false;
+    ctx.session.addInstrument = false;
+
+    ctx.reply("Какой инструмент желаете изъять?", {
       reply_markup: addInstrumentMenu,
     });
   }
 
   //Проверка на выполнения условия для дбавления инстрмента; Поиск выбранного инструмента; Выбор региона к которому относится инструмент
   if (ctx.session.addInstrument) {
-
     let addInstrument_Query = `${data}`.match(/add__(.+)/g);
     if (data == addInstrument_Query) {
-
-      data = data.match(/[A-Z].*/g);// извлечение названия инстурмента
+      data = data.match(/[A-Z].*/g); // извлечение названия инстурмента
 
       bot.api.deleteMessage(
         ctx.chat.id,
@@ -183,20 +193,28 @@ bot.on("callback_query:data", async (ctx) => {
     }
   }
 
-  if(ctx.session.saleInstrument){
-    saleInstrument(ctx, data, bot, tableInfo)
+  if (ctx.session.saleInstrument || ctx.session.removeInstrument) {
+    saleInstrument(ctx, data, bot, tableInfo);
   }
 
   // Окончательная запись в таблицу
   if (data === "write_to_table") {
     if (ctx.session.addInstrument) {
-
-      if(ctx.session.instrument['Инструменты'] == "Ether-Wood"){
-        await tableInfo.writeOff_Materials(ctx.session.count, tableInfo.material_ether)
-      }else if(ctx.session.instrument['Инструменты'] == "Ether-Acril"){
-        await tableInfo.writeOff_Materials(ctx.session.count, tableInfo.material_ether_acril)        
-      }else{
-        await tableInfo.writeOff_Materials(ctx.session.count, tableInfo.material_standart)
+      if (ctx.session.instrument["Инструменты"] == "Ether-Wood") {
+        await tableInfo.writeOff_Materials(
+          ctx.session.count,
+          tableInfo.material_ether
+        );
+      } else if (ctx.session.instrument["Инструменты"] == "Ether-Acril") {
+        await tableInfo.writeOff_Materials(
+          ctx.session.count,
+          tableInfo.material_ether_acril
+        );
+      } else {
+        await tableInfo.writeOff_Materials(
+          ctx.session.count,
+          tableInfo.material_standart
+        );
       }
 
       await tableInfo.addToTable_Materials();
@@ -213,18 +231,18 @@ bot.on("callback_query:data", async (ctx) => {
       );
     }
 
-    if (ctx.session.saleInstrument) {
+    if (ctx.session.saleInstrument || ctx.session.removeInstrument) {
       tableInfo.addToTable_Instruments();
       ctx.session.saleInstrument = false;
+      ctx.session.removeInstrument = false;
 
       ctx.reply(
         `Результат ваших непосильных усилй записан в таблицу в виде целочисленного значения.
-  
-Надеюсь, данный ряд совершённых действий имеет за собой не только некоторого рода завпечетленный факт условных показателей производительности, но и удовольствие
-      `,
+    
+  Надеюсь, данный ряд совершённых действий имеет за собой не только некоторого рода завпечетленный факт условных показателей производительности, но и удовольствие
+        `,
         { reply_markup: mainMenu }
       );
-
     }
 
     if (ctx.session.addMaterial) {
@@ -260,7 +278,10 @@ bot.hears(/[0-9]/, (ctx) => {
   }
 
   if (ctx.session.addMaterial) {
-    let total = [parseInt(ctx.session.material["Количество"]), parseInt(ctx.message.text)].reduce((prev, curr) => prev + curr);
+    let total = [
+      parseInt(ctx.session.material["Количество"]),
+      parseInt(ctx.message.text),
+    ].reduce((prev, curr) => prev + curr);
 
     ctx.session.material["Количество"] = total;
 
@@ -270,7 +291,7 @@ bot.hears(/[0-9]/, (ctx) => {
     );
   }
 
-  if (ctx.session.saleInstrument) {
+  if (ctx.session.saleInstrument || ctx.session.removeInstrument) {
     let region = `В наличии ${ctx.session.region}`;
 
     let total = [
@@ -280,12 +301,18 @@ bot.hears(/[0-9]/, (ctx) => {
 
     ctx.session.instrument[`В наличии ${ctx.session.region}`] = total;
 
-    ctx.reply(
-      `Было продандо ${ctx.message.text} инструментов ${ctx.session.instrument["Инструменты"]}`,
-      { reply_markup: writeTable }
-    );
+    if (ctx.session.removeInstrument) {
+      ctx.reply(
+        `Было изъято ${ctx.message.text} инструментов ${ctx.session.instrument["Инструменты"]}`,
+        { reply_markup: writeTable }
+      );
+    } else {
+      ctx.reply(
+        `Было продандо ${ctx.message.text} инструментов ${ctx.session.instrument["Инструменты"]}`,
+        { reply_markup: writeTable }
+      );
+    }
   }
-
 });
 
 bot.start();
