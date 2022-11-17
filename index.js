@@ -191,9 +191,16 @@ bot.on("callback_query:data", async (ctx) => {
   if (data === "write_to_table") {
     if (ctx.session.addInstrument) {
 
-      tableInfo.writeOff_Materials(ctx.session.count)
-      tableInfo.addToTable_Materials();
-      tableInfo.addToTable_Instruments();
+      if(ctx.session.instrument['Инструменты'] == "Ether-Wood"){
+        await tableInfo.writeOff_Materials(ctx.session.count, tableInfo.material_ether)
+      }else if(ctx.session.instrument['Инструменты'] == "Ether-Acril"){
+        await tableInfo.writeOff_Materials(ctx.session.count, tableInfo.material_ether_acril)        
+      }else{
+        await tableInfo.writeOff_Materials(ctx.session.count, tableInfo.material_standart)
+      }
+
+      await tableInfo.addToTable_Materials();
+      await tableInfo.addToTable_Instruments();
 
       ctx.session.addInstrument = false;
 

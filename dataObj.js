@@ -88,8 +88,7 @@ function TableInfo() {
     XLSX.writeFile(this.workbook, "data/dataTable.xlsx");
   };
 
-  this.writeOff_Materials = function (number) {
-    let materials = 
+  this.writeOff_Materials = function (number, materials) {
 
     materials.forEach((material) => {
       let findMaterial = this.jsonSheet_Components.filter(
@@ -122,9 +121,6 @@ function TableInfo() {
     "Подставки акрил",
     "Стики",
   ]
-
-  //!!!! Написать условия для добавлении на склад эфира и эфира акрилового !!!! 
-
 }
 
 module.exports = {

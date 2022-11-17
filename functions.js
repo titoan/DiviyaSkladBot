@@ -34,7 +34,7 @@ function saleInstrument(ctx, data, bot, tableInfo) {
             ctx.chat.id,
             `Вы выбрали <b>${ctx.session.instrument["Инструменты"]}</b>
 Регион: <b>${ctx.session.region}</b>
-          
+
 Сколько инстурментов желаете  продать?`,
             { parse_mode: "HTML" }
         );
