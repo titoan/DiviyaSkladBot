@@ -183,6 +183,10 @@ bot.on("callback_query:data", async (ctx) => {
     }
   }
 
+  if(ctx.session.saleInstrument){
+    saleInstrument(ctx, data, bot, tableInfo)
+  }
+
   // Окончательная запись в таблицу
   if (data === "write_to_table") {
     if (ctx.session.addInstrument) {

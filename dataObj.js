@@ -89,13 +89,7 @@ function TableInfo() {
   };
 
   this.writeOff_Materials = function (number) {
-    let materials = [
-      "Bag стандарт",
-      "Планки дерево Б",
-      "Планки дерево М",
-      "Подставки",
-      "Стики",
-    ];
+    let materials = 
 
     materials.forEach((material) => {
       let findMaterial = this.jsonSheet_Components.filter(
@@ -104,6 +98,33 @@ function TableInfo() {
       findMaterial[0]["Количество"] = findMaterial[0]["Количество"] - number
     });
   };
+
+  this.material_standart = [
+    "Bag стандарт",
+    "Планки дерево Б",
+    "Планки дерево М",
+    "Подставки",
+    "Стики",
+  ];
+
+  this.material_ether = [
+    "Bag эфир",
+    "Планки дерево Б",
+    "Планки дерево М",
+    "Подставки",
+    "Стики",
+  ];
+
+  this.material_ether_acril = [
+    "Bag эфир",    
+    "Планки акрил Б",
+    "Планки акрил М",
+    "Подставки акрил",
+    "Стики",
+  ]
+
+  //!!!! Написать условия для добавлении на склад эфира и эфира акрилового !!!! 
+
 }
 
 module.exports = {
