@@ -301,17 +301,10 @@ bot.hears(/[0-9]/, (ctx) => {
 
     ctx.session.instrument[`В наличии ${ctx.session.region}`] = total;
 
-    if (ctx.session.removeInstrument) {
-      ctx.reply(
-        `Было изъято ${ctx.message.text} инструментов ${ctx.session.instrument["Инструменты"]}`,
-        { reply_markup: writeTable }
-      );
-    } else {
-      ctx.reply(
-        `Было продандо ${ctx.message.text} инструментов ${ctx.session.instrument["Инструменты"]}`,
-        { reply_markup: writeTable }
-      );
-    }
+    ctx.reply(
+      `Было ${ctx.session.removeInstrument ? 'изъято' : 'продано'} ${ctx.message.text} инструментов ${ctx.session.instrument["Инструменты"]}`,
+      { reply_markup: writeTable }
+    );
   }
 });
 
