@@ -11,7 +11,7 @@ let {
   addMaterialMenu,
 } = require("./keyabords");
 let { TableInfo } = require("./dataObj");
-let { saleInstrument } = require("./functions");
+let { saleInstrument, stateToggle } = require("./functions");
 
 const token = process.env.BOT_TOKEN;
 const bot = new Bot(token);
@@ -19,11 +19,16 @@ const bot = new Bot(token);
 let tableInfo = new TableInfo();
 
 function initial() {
+  // ?=TODO: Функция перелючатель для состояний
+
   return {
-    addInstrument: false,
-    addMaterial: false,
-    saleInstrument: false,
-    removeInstrument: false,
+    states: {
+      addInstrument: false,
+      addMaterial: false,
+      saleInstrument: false,
+      removeInstrument: false,
+      removeMaterial: false,
+    },
     count: 0,
     instrument: {},
     material: {},
@@ -86,10 +91,15 @@ bot.on("callback_query:data", async (ctx) => {
       ctx.update.callback_query.message.message_id
     );
 
-    ctx.session.addInstrument = true;
-    tx.session.addMaterial = false;
-    ctx.session.removeInstrument = false;
-    ctx.session.saleInstrument = false;
+    console.log(ctx.session.states)
+    console.log('-----------------------------------')
+    stateToggle(ctx, data);
+    console.log(ctx.session.states)
+
+    // ctx.session.addInstrument = true;
+    // ctx.session.addMaterial = false;
+    // ctx.session.removeInstrument = false;
+    // ctx.session.saleInstrument = false;
     ctx.reply(`🪗 Какой строй желаете добавить на склад? 🪗`, {
       reply_markup: addInstrumentMenu,
     });
@@ -107,12 +117,11 @@ bot.on("callback_query:data", async (ctx) => {
     ctx.reply(`🪗 Какой материал желаете добавить на склад? 🪗`, {
       reply_markup: addMaterialMenu,
     });
-  } else if (data === "sale_instrument" ) {
+  } else if (data === "sale_instrument") {
     ctx.session.saleInstrument = true;
     ctx.session.addMaterial = false;
     ctx.session.addInstrument = false;
     ctx.session.removeInstrument = false;
-
 
     ctx.reply(`🪗 Какой инструмент желаете продать? 🪗`, {
       reply_markup: addInstrumentMenu,
@@ -277,11 +286,14 @@ bot.hears(/[0-9]/, (ctx) => {
     );
   }
 
-  if (ctx.session.addMaterial) {
+  if (ctx.session.addMaterial || ctx.session.removeMaterial) {
     let total = [
       parseInt(ctx.session.material["Количество"]),
       parseInt(ctx.message.text),
-    ].reduce((prev, curr) => prev + curr);
+    ].reduce((prev, curr) =>
+      ctx.session.addMaterial ? prev + curr : prev - curr
+    );
+    // reduce((prev, curr) => prev + curr); //*FIXME:  ctx.session.addMaterial ?  prev + curr :  prev - curr
 
     ctx.session.material["Количество"] = total;
 
@@ -302,7 +314,9 @@ bot.hears(/[0-9]/, (ctx) => {
     ctx.session.instrument[`В наличии ${ctx.session.region}`] = total;
 
     ctx.reply(
-      `Было ${ctx.session.removeInstrument ? 'изъято' : 'продано'} ${ctx.message.text} инструментов ${ctx.session.instrument["Инструменты"]}`,
+      `Было ${ctx.session.removeInstrument ? "изъято" : "продано"} ${
+        ctx.message.text
+      } инструментов ${ctx.session.instrument["Инструменты"]}`,
       { reply_markup: writeTable }
     );
   }
@@ -312,6 +326,6 @@ bot.start();
 
 /**
 TODO:
-Изъятие материалов со склада
-Алгоритм изъятия материалов со склада 
+[] Изъятие материалов со склада
+[] Алгоритм изъятия материалов со склада 
 **/
