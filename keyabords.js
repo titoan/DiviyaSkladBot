@@ -8,13 +8,13 @@ const mainMenu = new Keyboard()
 
 const skladMenu = new InlineKeyboard()
 .text("Добавить инструмент на склад", "add_instrument")
-.text("Забрать инструмент со склада", "rmv_instrument")
+.text("Забрать инструмент со склада", "remove_instrument")
 .row()
 .text("Продать инструмент", "sale_instrument")
 
 const materialMenu = new InlineKeyboard()
 .text("Добавить материал на склад", "add_material")
-.text("Забрать материал cо склада", "rmv_material")
+.text("Забрать материал cо склада", "remove_material")
 
 const addInstrumentMenu = new InlineKeyboard()
   .text("Fire", "add__Fire")

@@ -11,7 +11,7 @@ function saleInstrument(ctx, data, bot, tableInfo) {
       ctx.update.callback_query.message.message_id
     );
 
-    ctx.session.instrument = tableInfo.findInstrument(data);
+    ctx.session.instrument = tableInfo.findInstrument(data); //* возвращает объект
 
     ctx.reply(
       `Вы выбрали <b>${ctx.session.instrument["Инструменты"]}</b>

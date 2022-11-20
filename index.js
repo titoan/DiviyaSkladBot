@@ -24,9 +24,9 @@ function initial() {
   return {
     states: {
       addInstrument: false,
-      addMaterial: false,
-      saleInstrument: false,
       removeInstrument: false,
+      saleInstrument: false,
+      addMaterial: false,
       removeMaterial: false,
     },
     count: 0,
@@ -85,60 +85,39 @@ bot.on("callback_query:data", async (ctx) => {
   data = ctx.callbackQuery.data;
 
   // Условия добавления на склад инстурментов
-  if (data === "add_instrument") {
+  if (data === "add_instrument" || data === "remove_instrument") {
+
     bot.api.deleteMessage(
       ctx.chat.id,
       ctx.update.callback_query.message.message_id
     );
 
-    console.log(ctx.session.states)
-    console.log('-----------------------------------')
     stateToggle(ctx, data);
-    console.log(ctx.session.states)
-
-    // ctx.session.addInstrument = true;
-    // ctx.session.addMaterial = false;
-    // ctx.session.removeInstrument = false;
-    // ctx.session.saleInstrument = false;
+    
     ctx.reply(`🪗 Какой строй желаете добавить на склад? 🪗`, {
       reply_markup: addInstrumentMenu,
     });
-  } else if (data === "add_material") {
+  } else if (data === "add_material" || data === "remove_material") {
     bot.api.deleteMessage(
       ctx.chat.id,
       ctx.update.callback_query.message.message_id
     );
 
-    ctx.session.addMaterial = true;
-    ctx.session.addInstrument = false;
-    ctx.session.removeInstrument = false;
-    ctx.session.saleInstrument = false;
+    stateToggle(ctx, data);
 
-    ctx.reply(`🪗 Какой материал желаете добавить на склад? 🪗`, {
+    ctx.reply(`🪗 Какой материал желаете ${data === "add_material" ? "добавить на склад" : "изъять со склада"}? 🪗`, {
       reply_markup: addMaterialMenu,
     });
   } else if (data === "sale_instrument") {
-    ctx.session.saleInstrument = true;
-    ctx.session.addMaterial = false;
-    ctx.session.addInstrument = false;
-    ctx.session.removeInstrument = false;
+    stateToggle(ctx, data);
 
     ctx.reply(`🪗 Какой инструмент желаете продать? 🪗`, {
-      reply_markup: addInstrumentMenu,
-    });
-  } else if (data === "rmv_instrument") {
-    ctx.session.removeInstrument = true;
-    ctx.session.saleInstrument = false;
-    ctx.session.addMaterial = false;
-    ctx.session.addInstrument = false;
-
-    ctx.reply("Какой инструмент желаете изъять?", {
       reply_markup: addInstrumentMenu,
     });
   }
 
   //? Проверка на выполнения условия для добавления инструмента; Поиск выбранного инструмента; Выбор региона к которому относится инструмент
-  if (ctx.session.addInstrument) {
+  if (ctx.session.states.addInstrument) {
     let addInstrument_Query = `${data}`.match(/add__(.+)/g);
     if (data == addInstrument_Query) {
       data = data.match(/[A-Z].*/g); // извлечение названия инстурмента
@@ -178,7 +157,7 @@ bot.on("callback_query:data", async (ctx) => {
     }
   }
 
-  if (ctx.session.addMaterial) {
+  if (ctx.session.states.addMaterial || ctx.session.states.removeMaterial) {
     let addMaterial_Query = `${data}`.match(/add__(.+)/g);
     if (data == addMaterial_Query) {
       data = data.match(/[A-ZА-Я].*/g);
@@ -193,7 +172,7 @@ bot.on("callback_query:data", async (ctx) => {
           `Вы выбрали <b>${ctx.session.material["Комплектация"]}</b>
 Сейчас на складе находится <b>${ctx.session.material["Количество"]}</b> единиц
 
-Какое количество материала желаете добавить?`,
+Какое количество материала желаете ${ctx.session.states.addMaterial ? 'добавить' : 'изъять'}?`,
           { parse_mode: "HTML" }
         );
       } catch (e) {
@@ -202,13 +181,13 @@ bot.on("callback_query:data", async (ctx) => {
     }
   }
 
-  if (ctx.session.saleInstrument || ctx.session.removeInstrument) {
+  if (ctx.session.states.saleInstrument || ctx.session.states.removeInstrument) {
     saleInstrument(ctx, data, bot, tableInfo);
   }
 
   // Окончательная запись в таблицу
   if (data === "write_to_table") {
-    if (ctx.session.addInstrument) {
+    if (ctx.session.states.addInstrument) {
       if (ctx.session.instrument["Инструменты"] == "Ether-Wood") {
         await tableInfo.writeOff_Materials(
           ctx.session.count,
@@ -229,7 +208,7 @@ bot.on("callback_query:data", async (ctx) => {
       await tableInfo.addToTable_Materials();
       await tableInfo.addToTable_Instruments();
 
-      ctx.session.addInstrument = false;
+      ctx.session.states.addInstrument = false;
 
       ctx.reply(
         `Результат ваших непосильных усилй записан в таблицу в виде целочисленного значения.
@@ -240,10 +219,10 @@ bot.on("callback_query:data", async (ctx) => {
       );
     }
 
-    if (ctx.session.saleInstrument || ctx.session.removeInstrument) {
+    if (ctx.session.states.saleInstrument || ctx.session.states.removeInstrument) {
       tableInfo.addToTable_Instruments();
-      ctx.session.saleInstrument = false;
-      ctx.session.removeInstrument = false;
+      ctx.session.states.saleInstrument = false;
+      ctx.session.states.removeInstrument = false;
 
       ctx.reply(
         `Результат ваших непосильных усилй записан в таблицу в виде целочисленного значения.
@@ -254,9 +233,10 @@ bot.on("callback_query:data", async (ctx) => {
       );
     }
 
-    if (ctx.session.addMaterial) {
+    if (ctx.session.states.addMaterial || ctx.session.states.removeMaterial) {
       tableInfo.addToTable_Materials();
-      ctx.session.addMaterial = false;
+      ctx.session.states.addMaterial = false;
+      ctx.session.states.removeMateria = false;
       ctx.reply(
         `Результат ваших непосильных усилй записан в таблицу в виде целочисленного значения.
   
@@ -269,7 +249,7 @@ bot.on("callback_query:data", async (ctx) => {
 });
 
 bot.hears(/[0-9]/, (ctx) => {
-  if (ctx.session.addInstrument) {
+  if (ctx.session.states.addInstrument) {
     let region = `В наличии ${ctx.session.region}`;
     ctx.session.count = parseInt(ctx.message.text);
 
@@ -286,24 +266,24 @@ bot.hears(/[0-9]/, (ctx) => {
     );
   }
 
-  if (ctx.session.addMaterial || ctx.session.removeMaterial) {
+  if (ctx.session.states.addMaterial || ctx.session.states.removeMaterial) {
     let total = [
       parseInt(ctx.session.material["Количество"]),
       parseInt(ctx.message.text),
     ].reduce((prev, curr) =>
-      ctx.session.addMaterial ? prev + curr : prev - curr
+      ctx.session.states.addMaterial ? prev + curr : prev - curr
     );
-    // reduce((prev, curr) => prev + curr); //*FIXME:  ctx.session.addMaterial ?  prev + curr :  prev - curr
+    // reduce((prev, curr) => prev + curr); //*FIXME:  ctx.session.states.addMaterial ?  prev + curr :  prev - curr
 
     ctx.session.material["Количество"] = total;
 
     ctx.reply(
-      `На склад было добавлено ${ctx.message.text} ${ctx.session.material["Комплектация"]}`,
+      `${ctx.session.states.addMaterial ? 'На склад было добавлено' : 'Со склада было изъято'} ${ctx.message.text} ${ctx.session.material["Комплектация"]}`,
       { reply_markup: writeTable }
     );
   }
 
-  if (ctx.session.saleInstrument || ctx.session.removeInstrument) {
+  if (ctx.session.states.saleInstrument || ctx.session.states.removeInstrument) {
     let region = `В наличии ${ctx.session.region}`;
 
     let total = [
@@ -314,7 +294,7 @@ bot.hears(/[0-9]/, (ctx) => {
     ctx.session.instrument[`В наличии ${ctx.session.region}`] = total;
 
     ctx.reply(
-      `Было ${ctx.session.removeInstrument ? "изъято" : "продано"} ${
+      `Было ${ctx.session.states.removeInstrument ? "изъято" : "продано"} ${
         ctx.message.text
       } инструментов ${ctx.session.instrument["Инструменты"]}`,
       { reply_markup: writeTable }
@@ -324,8 +304,9 @@ bot.hears(/[0-9]/, (ctx) => {
 
 bot.start();
 
-/**
+/** 
 TODO:
+[] Заменить все стейты на функцию!!
 [] Изъятие материалов со склада
 [] Алгоритм изъятия материалов со склада 
 **/
