@@ -1,3 +1,5 @@
 /node_modules
 .env
 concise-reserve-244212-35fb5b9d97c0.json
+/data
+/data/dataTable.xlsx

@@ -4,13 +4,9 @@ const XLSX = require("xlsx");
 function TableInfo() {
   this.workbook = XLSX.readFile("data/dataTable.xlsx");
   this.worksheet_Instruments = this.workbook.Sheets.ready_to_sale;
-  this.jsonSheet_Instruments = XLSX.utils.sheet_to_json(
-    this.worksheet_Instruments
-  );
+  this.jsonSheet_Instruments = XLSX.utils.sheet_to_json( this.worksheet_Instruments );
   this.worksheet_Components = this.workbook.Sheets.components;
-  this.jsonSheet_Components = XLSX.utils.sheet_to_json(
-    this.worksheet_Components
-  );
+  this.jsonSheet_Components = XLSX.utils.sheet_to_json( this.worksheet_Components );
 
   this.findInstrument = function (propName) {
     for (item of this.jsonSheet_Instruments) {
@@ -97,6 +93,10 @@ function TableInfo() {
       findMaterial[0]["Количество"] = findMaterial[0]["Количество"] - number
     });
   };
+
+  this.reloadTable = function(){
+    return this.workbook = XLSX.readFile("data/dataTable.xlsx");
+  }
 
   this.material_standart = [
     "Bag стандарт",

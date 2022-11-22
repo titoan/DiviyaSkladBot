@@ -15,6 +15,7 @@ const { TableInfo } = require("./dataObj");
 const { saleInstrument, stateToggle } = require("./functions");
 const fs = require("fs");
 const { hydrateFiles } = require("@grammyjs/files");
+const XLSX = require("xlsx");
 
 
 
@@ -281,26 +282,25 @@ bot.on("callback_query:data", async (ctx) => {
       ctx.reply(`${err.description}`);
       console.log(err);
     }
-  } else if (data === "uploadTable") {
+  } else if (data === "upload_table") {
     ctx.session.table.uploadTable = true;
+    
+    ctx.reply("Загрузите таблицу")
   }
 });
 
 bot.on("msg:file", async ctx => {
-  // console.log(ctx)
- 
-    const filePath = await ctx.getFile();
-    const path = await filePath.download();
 
-    let stream = fs.readFileSync(path, "utf-8");
-    console.log(stream) // ! Сбивается кодировка. Нарушается поток передачи данных. Что с эитм можно сделать?
+if(ctx.session.table.uploadTable){
+  const filePath = await ctx.getFile();
+  await filePath.download(`data/dataTable.xlsx`); 
 
-    // await fs.writeFile(`data/dataTable.xlsx`, stream, (err) => {
-    //   if (err) throw err;
-    // });
+  await ctx.reply('Файл загружон')
 
-    await ctx.reply('Файл загружон')
- 
+  tableInfo = await new TableInfo();   
+}
+
+ctx.session.table.uploadTable = false;
 })
 
 bot.hears(/[0-9]/, (ctx) => {
@@ -328,7 +328,6 @@ bot.hears(/[0-9]/, (ctx) => {
     ].reduce((prev, curr) =>
       ctx.session.states.addMaterial ? prev + curr : prev - curr
     );
-    // reduce((prev, curr) => prev + curr); //*FIXME:  ctx.session.states.addMaterial ?  prev + curr :  prev - curr
 
     ctx.session.material["Количество"] = total;
 
@@ -342,10 +341,7 @@ bot.hears(/[0-9]/, (ctx) => {
     );
   }
 
-  if (
-    ctx.session.states.saleInstrument ||
-    ctx.session.states.removeInstrument
-  ) {
+  if ( ctx.session.states.saleInstrument || ctx.session.states.removeInstrument ) {
     let region = `В наличии ${ctx.session.region}`;
 
     let total = [
