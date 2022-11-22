@@ -10,8 +10,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@grammyjs/files": "^1.0.4",
     "@grammyjs/menu": "^1.1.2",
     "dotenv": "^16.0.1",
+    "fs": "^0.0.1-security",
     "grammy": "^1.10.1",
     "xlsx": "^0.18.5"
   },

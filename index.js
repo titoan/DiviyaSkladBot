@@ -1,7 +1,7 @@
 // ! Создать массив инстурментов. Для вывода меню инстурментов использовать @grammyjs/menu => MenuRange
-const { Bot, session } = require("grammy");
+const { Bot, session, InputFile } = require("grammy");
 require("dotenv").config();
-let {
+const {
   mainMenu,
   skladMenu,
   materialMenu,
@@ -9,18 +9,22 @@ let {
   chooseRegion,
   writeTable,
   addMaterialMenu,
+  tableMenu,
 } = require("./keyabords");
-let { TableInfo } = require("./dataObj");
-let { saleInstrument, stateToggle } = require("./functions");
+const { TableInfo } = require("./dataObj");
+const { saleInstrument, stateToggle } = require("./functions");
+const fs = require("fs");
+const { hydrateFiles } = require("@grammyjs/files");
+
+
 
 const token = process.env.BOT_TOKEN;
 const bot = new Bot(token);
+bot.api.config.use(hydrateFiles(token));
 
 let tableInfo = new TableInfo();
 
 function initial() {
-  // ?=TODO: Функция перелючатель для состояний
-
   return {
     states: {
       addInstrument: false,
@@ -28,6 +32,10 @@ function initial() {
       saleInstrument: false,
       addMaterial: false,
       removeMaterial: false,
+    },
+    table: {
+      uploadTable: false,
+      getTable: false,
     },
     count: 0,
     instrument: {},
@@ -81,19 +89,24 @@ ${tableInfo.componentsInfoStr()}`,
   );
 });
 
+bot.hears("Таблица", (ctx) => {
+  ctx.reply("Какое действие вам будет угодно совершить?", {
+    reply_markup: tableMenu,
+  });
+});
+
 bot.on("callback_query:data", async (ctx) => {
   data = ctx.callbackQuery.data;
 
   // Условия добавления на склад инстурментов
   if (data === "add_instrument" || data === "remove_instrument") {
-
     bot.api.deleteMessage(
       ctx.chat.id,
       ctx.update.callback_query.message.message_id
     );
 
     stateToggle(ctx, data);
-    
+
     ctx.reply(`🪗 Какой строй желаете добавить на склад? 🪗`, {
       reply_markup: addInstrumentMenu,
     });
@@ -105,9 +118,14 @@ bot.on("callback_query:data", async (ctx) => {
 
     stateToggle(ctx, data);
 
-    ctx.reply(`🪗 Какой материал желаете ${data === "add_material" ? "добавить на склад" : "изъять со склада"}? 🪗`, {
-      reply_markup: addMaterialMenu,
-    });
+    ctx.reply(
+      `🪗 Какой материал желаете ${
+        data === "add_material" ? "добавить на склад" : "изъять со склада"
+      }? 🪗`,
+      {
+        reply_markup: addMaterialMenu,
+      }
+    );
   } else if (data === "sale_instrument") {
     stateToggle(ctx, data);
 
@@ -172,7 +190,9 @@ bot.on("callback_query:data", async (ctx) => {
           `Вы выбрали <b>${ctx.session.material["Комплектация"]}</b>
 Сейчас на складе находится <b>${ctx.session.material["Количество"]}</b> единиц
 
-Какое количество материала желаете ${ctx.session.states.addMaterial ? 'добавить' : 'изъять'}?`,
+Какое количество материала желаете ${
+            ctx.session.states.addMaterial ? "добавить" : "изъять"
+          }?`,
           { parse_mode: "HTML" }
         );
       } catch (e) {
@@ -181,13 +201,17 @@ bot.on("callback_query:data", async (ctx) => {
     }
   }
 
-  if (ctx.session.states.saleInstrument || ctx.session.states.removeInstrument) {
+  if (
+    ctx.session.states.saleInstrument ||
+    ctx.session.states.removeInstrument
+  ) {
     saleInstrument(ctx, data, bot, tableInfo);
   }
 
   // Окончательная запись в таблицу
   if (data === "write_to_table") {
     if (ctx.session.states.addInstrument) {
+      // FIXME: а вот как?
       if (ctx.session.instrument["Инструменты"] == "Ether-Wood") {
         await tableInfo.writeOff_Materials(
           ctx.session.count,
@@ -219,7 +243,10 @@ bot.on("callback_query:data", async (ctx) => {
       );
     }
 
-    if (ctx.session.states.saleInstrument || ctx.session.states.removeInstrument) {
+    if (
+      ctx.session.states.saleInstrument ||
+      ctx.session.states.removeInstrument
+    ) {
       tableInfo.addToTable_Instruments();
       ctx.session.states.saleInstrument = false;
       ctx.session.states.removeInstrument = false;
@@ -246,7 +273,35 @@ bot.on("callback_query:data", async (ctx) => {
       );
     }
   }
+
+  if (data === "get_table") {
+    try {
+      await ctx.replyWithDocument(new InputFile("./data/dataTable.xlsx"));
+    } catch (err) {
+      ctx.reply(`${err.description}`);
+      console.log(err);
+    }
+  } else if (data === "uploadTable") {
+    ctx.session.table.uploadTable = true;
+  }
 });
+
+bot.on("msg:file", async ctx => {
+  // console.log(ctx)
+ 
+    const filePath = await ctx.getFile();
+    const path = await filePath.download();
+
+    let stream = fs.readFileSync(path, "utf-8");
+    console.log(stream) // ! Сбивается кодировка. Нарушается поток передачи данных. Что с эитм можно сделать?
+
+    // await fs.writeFile(`data/dataTable.xlsx`, stream, (err) => {
+    //   if (err) throw err;
+    // });
+
+    await ctx.reply('Файл загружон')
+ 
+})
 
 bot.hears(/[0-9]/, (ctx) => {
   if (ctx.session.states.addInstrument) {
@@ -278,12 +333,19 @@ bot.hears(/[0-9]/, (ctx) => {
     ctx.session.material["Количество"] = total;
 
     ctx.reply(
-      `${ctx.session.states.addMaterial ? 'На склад было добавлено' : 'Со склада было изъято'} ${ctx.message.text} ${ctx.session.material["Комплектация"]}`,
+      `${
+        ctx.session.states.addMaterial
+          ? "На склад было добавлено"
+          : "Со склада было изъято"
+      } ${ctx.message.text} ${ctx.session.material["Комплектация"]}`,
       { reply_markup: writeTable }
     );
   }
 
-  if (ctx.session.states.saleInstrument || ctx.session.states.removeInstrument) {
+  if (
+    ctx.session.states.saleInstrument ||
+    ctx.session.states.removeInstrument
+  ) {
     let region = `В наличии ${ctx.session.region}`;
 
     let total = [
@@ -306,7 +368,5 @@ bot.start();
 
 /** 
 TODO:
-[] Заменить все стейты на функцию!!
-[] Изъятие материалов со склада
-[] Алгоритм изъятия материалов со склада 
+
 **/

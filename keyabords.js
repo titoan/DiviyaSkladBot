@@ -5,6 +5,9 @@ const mainMenu = new Keyboard()
   .text("Склад материалов")
   .row()
   .text("Склад инструментов")
+  .row()
+  .text('Таблица')
+  .resized()
 
 const skladMenu = new InlineKeyboard()
 .text("Добавить инструмент на склад", "add_instrument")
@@ -44,6 +47,10 @@ const addMaterialMenu = new InlineKeyboard()
 .text('Подставки_акрил', 'add__Подставки акрил').row()
 .text('Стики', 'add__Стики').row()
 
+const tableMenu = new InlineKeyboard()
+.text('Получить таблицу', 'get_table').row()
+.text('Загрузить таблицу', 'upload_table')
+
 
 const chooseRegion = new InlineKeyboard()
 .text("ENG", "ENG").text("UA", "UA");
@@ -58,5 +65,6 @@ module.exports = {
   chooseRegion,
   writeTable,
   materialMenu,
-  addMaterialMenu
+  addMaterialMenu,
+  tableMenu
 };
