@@ -1,70 +1,90 @@
 const { Keyboard, InlineKeyboard } = require("grammy");
 const { Menu, MenuRange } = require("@grammyjs/menu");
 
+// ! Динамическое меню
+const addInstrumentsMenu = new Menu("dynamic")
+.dynamic((ctx, range) => {
+  for(const instrument of ctx.table.tableObj.getInstruments()){
+    range
+    .text(instrument, (ctx) => {
+      ctx.session.instrument = ctx.table.tableObj.findInstrument(instrument);
+
+      ctx.reply(
+        `Вы выбрали <b>${ctx.session.instrument["Инструменты"]}</b>
+        Сейчас на складе находится <b>${ctx.session.instrument["Количество"]}</b> единиц
+
+К какому региону отностися инструмент?`,
+        {
+          reply_markup: chooseRegion,
+          parse_mode: "HTML",
+        }
+      );
+    })
+    .row();
+  }
+});
+
+const addMaterialMenu = new Menu("dynamic_1")
+.dynamic((ctx, range) => {
+  for(material of ctx.table.tableObj.getComponents()){
+    range
+    .text(material, ctx => {
+      ctx.session.material = ctx.table.tableObj.findMaterial(material);
+            try {
+        ctx.reply(
+          `Вы выбрали <b>${ctx.session.material["Комплектация"]}</b>
+Сейчас на складе находится <b>${ctx.session.material["Количество"]}</b> единиц
+
+Какое количество материала желаете ${
+            ctx.session.states.addMaterial ? "добавить" : "изъять"
+          }?`,
+          { parse_mode: "HTML" }
+        );
+      } catch (e) {
+        console.log(e);
+      }
+    })
+    .row();
+  }
+})
+
 const mainMenu = new Keyboard()
   .text("Склад материалов")
   .row()
   .text("Склад инструментов")
   .row()
-  .text('Таблица')
-  .resized()
+  .text("Таблица")
+  .resized();
 
-const skladMenu = new InlineKeyboard()
-.text("Добавить инструмент на склад", "add_instrument")
-.text("Забрать инструмент со склада", "remove_instrument")
-.row()
-.text("Продать инструмент", "sale_instrument")
+const instrumentsMenu = new InlineKeyboard()
+  .text("Добавить инструмент на склад", "add_instrument")
+  .text("Забрать инструмент со склада", "remove_instrument")
+  .row()
+  .text("Продать инструмент", "sale_instrument");
 
 const materialMenu = new InlineKeyboard()
-.text("Добавить материал на склад", "add_material")
-.text("Забрать материал cо склада", "remove_material")
-
-const addInstrumentMenu = new InlineKeyboard()
-  .text("Fire", "add__Fire")
-  .row()
-  .text("Ether-Acril", "add__Ether-Acril")
-  .row()
-  .text("Ether-Wood", "add__Ether-Wood")
-  .row()
-  .text("Waterfall", "add__Waterfall")
-  .row()
-  .text("Eternal-love", "add__Eternal-love")
-  .row()
-  .text("Alchemy", "add__Alchemy")
-  .row()
-  .text("Infinity", "add__Infinity")
-  .row();
-
-const addMaterialMenu = new InlineKeyboard()
-.text('Bag_стандарт', 'add__Bag стандарт').row()
-.text('Bag_эфир', 'add__Bag эфир').row()
-.text('Box_Divya', 'add__Box Divya').row()
-.text('Планки_дерево_Б', 'add__Планки дерево Б').row()
-.text('Планки_дерево_М', 'add__Планки дерево М').row()
-.text('Планки_акрил_Б', 'add__Планки акрил Б').row()
-.text('Планки_акрил_М', 'add__Планки акрил М').row()
-.text('Подставки', 'add__Подставки').row()
-.text('Подставки_акрил', 'add__Подставки акрил').row()
-.text('Стики', 'add__Стики').row()
+  .text("Добавить материал на склад", "add_material")
+  .text("Забрать материал cо склада", "remove_material");
 
 const tableMenu = new InlineKeyboard()
-.text('Получить таблицу', 'get_table').row()
-.text('Загрузить таблицу', 'upload_table')
+  .text("Получить таблицу", "get_table")
+  .row()
+  .text("Загрузить таблицу", "upload_table");
 
+const chooseRegion = new InlineKeyboard().text("ENG", "ENG").text("UA", "UA");
 
-const chooseRegion = new InlineKeyboard()
-.text("ENG", "ENG").text("UA", "UA");
-
-const writeTable = new InlineKeyboard()
-.text("Записать данные в таблицу", "write_to_table")
+const writeTable = new InlineKeyboard().text(
+  "Записать данные в таблицу",
+  "write_to_table"
+);
 
 module.exports = {
   mainMenu,
-  skladMenu,
-  addInstrumentMenu,
+  instrumentsMenu,
+  addInstrumentsMenu,
   chooseRegion,
   writeTable,
   materialMenu,
   addMaterialMenu,
-  tableMenu
+  tableMenu,  
 };

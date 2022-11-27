@@ -47,13 +47,11 @@ function saleInstrument(ctx, data, bot, tableInfo) {
 function stateToggle(ctx, data) {
 
     let stateName = data.replace(/_/, '');
-    states = ['addInstrument', 'addMaterial', 'saleInstrument', 'removeInstrument', 'removeMaterial'];
 
     let obj = ctx.session.states
     for (const key in obj) {
         if (obj.hasOwnProperty.call(obj, key)) {
-            
-            const element = obj[key];
+          console.log(key)
             if(key.toLowerCase() === stateName){
                 obj[key] = true
             }else{
@@ -62,9 +60,10 @@ function stateToggle(ctx, data) {
             
         }
     }
+
 }
 
 module.exports = {
   saleInstrument,
-  stateToggle
+  stateToggle,
 };

@@ -1,4 +1,3 @@
-const { Bot } = require("grammy");
 const XLSX = require("xlsx");
 
 function TableInfo() {
@@ -63,10 +62,8 @@ function TableInfo() {
   };
 
   this.addToTable_Instruments = function () {
-    XLSX.utils.sheet_add_json(
-      this.worksheet_Instruments,
-      this.jsonSheet_Instruments
-    );
+    console.log(this.jsonSheet_Instruments)
+    XLSX.utils.sheet_add_json( this.worksheet_Instruments, this.jsonSheet_Instruments );
 
     this.worksheet_Instruments["!cols"] = [{ wch: 25 }]; // В теории должно давать каждой колонке ширину в 25 символов, но отрабатывает только на первой
 
@@ -74,10 +71,7 @@ function TableInfo() {
   };
 
   this.addToTable_Materials = function () {
-    XLSX.utils.sheet_add_json(
-      this.worksheet_Components,
-      this.jsonSheet_Components
-    );
+    XLSX.utils.sheet_add_json( this.worksheet_Components, this.jsonSheet_Components );
 
     this.worksheet_Instruments["!cols"] = [{ wch: 25 }]; // В теории должно давать каждой колонке ширину в 25 символов, но отрабатывает только на первой
 
@@ -93,10 +87,6 @@ function TableInfo() {
       findMaterial[0]["Количество"] = findMaterial[0]["Количество"] - number
     });
   };
-
-  this.reloadTable = function(){
-    return this.workbook = XLSX.readFile("data/dataTable.xlsx");
-  }
 
   this.material_standart = [
     "Bag стандарт",

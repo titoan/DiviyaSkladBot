@@ -3,13 +3,13 @@ const { Bot, session, InputFile } = require("grammy");
 require("dotenv").config();
 const {
   mainMenu,
-  skladMenu,
+  instrumentsMenu,
   materialMenu,
-  addInstrumentMenu,
+  addInstrumentsMenu,
   chooseRegion,
   writeTable,
   addMaterialMenu,
-  tableMenu,
+  tableMenu  
 } = require("./keyabords");
 const { TableInfo } = require("./dataObj");
 const { saleInstrument, stateToggle } = require("./functions");
@@ -42,11 +42,21 @@ function initial() {
     instrument: {},
     material: {},
     region: "",
-    prevMsgId: 0,
   };
 }
 
+// ? Пример модификации контекста для передачи одинаковых значений между модулями через контекст
+// * Добавляем в объект контекста экземпляр класса таблицы. 
+bot.use(async (ctx, next) => {
+  ctx.table = {
+    tableObj: tableInfo
+  };  
+  await next();
+});
+
+
 bot.use(session({ initial }));
+bot.use(addInstrumentsMenu, addMaterialMenu)
 
 bot.command("start", async (ctx) => {
   await ctx.reply(
@@ -73,7 +83,7 @@ bot.hears("Склад инструментов", (ctx) => {
 ${tableInfo.instrumentsInfoStr()}
     `,
     {
-      reply_markup: skladMenu,
+      reply_markup: instrumentsMenu,
     }
   );
 });
@@ -96,26 +106,30 @@ bot.hears("Таблица", (ctx) => {
   });
 });
 
+
+
 bot.on("callback_query:data", async (ctx) => {
   data = ctx.callbackQuery.data;
 
   // Условия добавления на склад инстурментов
   if (data === "add_instrument" || data === "remove_instrument") {
-    bot.api.deleteMessage(
-      ctx.chat.id,
-      ctx.update.callback_query.message.message_id
-    );
+    // bot.api.deleteMessage(
+    //   ctx.chat.id,
+    //   ctx.update.callback_query.message.message_id
+    // );
 
     stateToggle(ctx, data);
 
+    // ! Динамическое меню  
     ctx.reply(`🪗 Какой строй желаете добавить на склад? 🪗`, {
-      reply_markup: addInstrumentMenu,
+      reply_markup: addInstrumentsMenu,
     });
+
   } else if (data === "add_material" || data === "remove_material") {
-    bot.api.deleteMessage(
-      ctx.chat.id,
-      ctx.update.callback_query.message.message_id
-    );
+    // bot.api.deleteMessage(
+    //   ctx.chat.id,
+    //   ctx.update.callback_query.message.message_id
+    // );
 
     stateToggle(ctx, data);
 
@@ -137,26 +151,6 @@ bot.on("callback_query:data", async (ctx) => {
 
   //? Проверка на выполнения условия для добавления инструмента; Поиск выбранного инструмента; Выбор региона к которому относится инструмент
   if (ctx.session.states.addInstrument) {
-    let addInstrument_Query = `${data}`.match(/add__(.+)/g);
-    if (data == addInstrument_Query) {
-      data = data.match(/[A-Z].*/g); // извлечение названия инстурмента
-
-      bot.api.deleteMessage(
-        ctx.chat.id,
-        ctx.update.callback_query.message.message_id
-      );
-
-      ctx.session.instrument = tableInfo.findInstrument(data);
-      ctx.reply(
-        `Вы выбрали <b>${ctx.session.instrument["Инструменты"]}</b>
-    
-К какому региону отностися инструмент?`,
-        {
-          reply_markup: chooseRegion,
-          parse_mode: "HTML",
-        }
-      );
-    }
 
     if (data === "ENG" || data === "UA") {
       ctx.session.region = data;
@@ -176,36 +170,7 @@ bot.on("callback_query:data", async (ctx) => {
     }
   }
 
-  if (ctx.session.states.addMaterial || ctx.session.states.removeMaterial) {
-    let addMaterial_Query = `${data}`.match(/add__(.+)/g);
-    if (data == addMaterial_Query) {
-      data = data.match(/[A-ZА-Я].*/g);
-      bot.api.deleteMessage(
-        ctx.chat.id,
-        ctx.update.callback_query.message.message_id
-      );
-      ctx.session.material = tableInfo.findMaterial(data);
-
-      try {
-        ctx.reply(
-          `Вы выбрали <b>${ctx.session.material["Комплектация"]}</b>
-Сейчас на складе находится <b>${ctx.session.material["Количество"]}</b> единиц
-
-Какое количество материала желаете ${
-            ctx.session.states.addMaterial ? "добавить" : "изъять"
-          }?`,
-          { parse_mode: "HTML" }
-        );
-      } catch (e) {
-        console.log(e);
-      }
-    }
-  }
-
-  if (
-    ctx.session.states.saleInstrument ||
-    ctx.session.states.removeInstrument
-  ) {
+  if ( ctx.session.states.saleInstrument || ctx.session.states.removeInstrument ) {
     saleInstrument(ctx, data, bot, tableInfo);
   }
 
@@ -224,10 +189,7 @@ bot.on("callback_query:data", async (ctx) => {
           tableInfo.material_ether_acril
         );
       } else {
-        await tableInfo.writeOff_Materials(
-          ctx.session.count,
-          tableInfo.material_standart
-        );
+        await tableInfo.writeOff_Materials( ctx.session.count, tableInfo.material_standart );
       }
 
       await tableInfo.addToTable_Materials();
@@ -295,7 +257,10 @@ if(ctx.session.table.uploadTable){
   const filePath = await ctx.getFile();
   await filePath.download(`data/dataTable.xlsx`); 
 
-  await ctx.reply('Файл загружон')
+  await ctx.reply(`Все внесенные вами изменения будут безукоризнено учтены, обработаны и взяты во внимание. Иначе быть и не может. Будьте покойны.
+
+  Перезагрузите бота командой /start
+  `)
 
   tableInfo = await new TableInfo();   
 }
@@ -314,6 +279,7 @@ bot.hears(/[0-9]/, (ctx) => {
     ].reduce((prev, curr) => prev + curr);
 
     ctx.session.instrument[`В наличии ${ctx.session.region}`] = total;
+    console.log(ctx.session.instrument)
 
     ctx.reply(
       `На склад было добавлено ${ctx.message.text} инструментов ${ctx.session.instrument["Инструменты"]}`,
@@ -366,3 +332,4 @@ bot.start();
 TODO:
 
 **/
+
