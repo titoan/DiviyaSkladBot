@@ -113,24 +113,15 @@ bot.on("callback_query:data", async (ctx) => {
 
   // Условия добавления на склад инстурментов
   if (data === "add_instrument" || data === "remove_instrument") {
-    // bot.api.deleteMessage(
-    //   ctx.chat.id,
-    //   ctx.update.callback_query.message.message_id
-    // );
 
     stateToggle(ctx, data);
 
     // ! Динамическое меню  
-    ctx.reply(`🪗 Какой строй желаете добавить на склад? 🪗`, {
+    ctx.reply(`🪗 Какой строй желаете ${data === "add_instrument" ? "добавить на склад" : "изъять со склада"}? 🪗`, {
       reply_markup: addInstrumentsMenu,
     });
 
   } else if (data === "add_material" || data === "remove_material") {
-    // bot.api.deleteMessage(
-    //   ctx.chat.id,
-    //   ctx.update.callback_query.message.message_id
-    // );
-
     stateToggle(ctx, data);
 
     ctx.reply(
@@ -145,7 +136,7 @@ bot.on("callback_query:data", async (ctx) => {
     stateToggle(ctx, data);
 
     ctx.reply(`🪗 Какой инструмент желаете продать? 🪗`, {
-      reply_markup: addInstrumentMenu,
+      reply_markup: addInstrumentsMenu,
     });
   }
 
@@ -153,11 +144,7 @@ bot.on("callback_query:data", async (ctx) => {
   if (ctx.session.states.addInstrument) {
 
     if (data === "ENG" || data === "UA") {
-      ctx.session.region = data;
-      bot.api.deleteMessage(
-        ctx.chat.id,
-        ctx.update.callback_query.message.message_id
-      );
+      ctx.session.region = data;      
 
       bot.api.sendMessage(
         ctx.chat.id,
@@ -171,7 +158,18 @@ bot.on("callback_query:data", async (ctx) => {
   }
 
   if ( ctx.session.states.saleInstrument || ctx.session.states.removeInstrument ) {
-    saleInstrument(ctx, data, bot, tableInfo);
+    console.log(ctx.session.states)
+    if (data === "ENG" || data === "UA") {
+      ctx.session.region = data;      
+
+      bot.api.sendMessage(
+        ctx.chat.id,
+        `Вы выбрали <b>${ctx.session.instrument["Инструменты"]}</b>
+Регион: <b>${ctx.session.region}</b>
+        
+Сколько инстурментов желаете  ${  ctx.session.states.saleInstrument ? "продать" : "изъять"}?`, { parse_mode: "HTML" }
+      );
+    }
   }
 
   // Окончательная запись в таблицу
@@ -179,10 +177,7 @@ bot.on("callback_query:data", async (ctx) => {
     if (ctx.session.states.addInstrument) {
       // FIXME: а вот как?
       if (ctx.session.instrument["Инструменты"] == "Ether-Wood") {
-        await tableInfo.writeOff_Materials(
-          ctx.session.count,
-          tableInfo.material_ether
-        );
+        await tableInfo.writeOff_Materials( ctx.session.count, tableInfo.material_ether );
       } else if (ctx.session.instrument["Инструменты"] == "Ether-Acril") {
         await tableInfo.writeOff_Materials(
           ctx.session.count,
@@ -200,16 +195,13 @@ bot.on("callback_query:data", async (ctx) => {
       ctx.reply(
         `Результат ваших непосильных усилй записан в таблицу в виде целочисленного значения.
   
-  Надеюсь, данный ряд совершённых действий имеет за собой не только некоторого рода завпечетленный факт условных показателей производительности, но и удовольствие
+Надеюсь, данный ряд совершённых действий имеет за собой не только некоторого рода завпечетленный факт условных показателей производительности, но и удовольствие
       `,
         { reply_markup: mainMenu }
       );
     }
 
-    if (
-      ctx.session.states.saleInstrument ||
-      ctx.session.states.removeInstrument
-    ) {
+    if ( ctx.session.states.saleInstrument || ctx.session.states.removeInstrument ) {
       tableInfo.addToTable_Instruments();
       ctx.session.states.saleInstrument = false;
       ctx.session.states.removeInstrument = false;
@@ -217,7 +209,7 @@ bot.on("callback_query:data", async (ctx) => {
       ctx.reply(
         `Результат ваших непосильных усилй записан в таблицу в виде целочисленного значения.
     
-  Надеюсь, данный ряд совершённых действий имеет за собой не только некоторого рода завпечетленный факт условных показателей производительности, но и удовольствие
+Надеюсь, данный ряд совершённых действий имеет за собой не только некоторого рода завпечетленный факт условных показателей производительности, но и удовольствие
         `,
         { reply_markup: mainMenu }
       );
@@ -309,10 +301,7 @@ bot.hears(/[0-9]/, (ctx) => {
   if ( ctx.session.states.saleInstrument || ctx.session.states.removeInstrument ) {
     let region = `В наличии ${ctx.session.region}`;
 
-    let total = [
-      parseInt(ctx.session.instrument[region]),
-      parseInt(ctx.message.text),
-    ].reduce((prev, curr) => prev - curr);
+    let total = [parseInt(ctx.session.instrument[region]), parseInt(ctx.message.text)].reduce((prev, curr) => prev - curr);
 
     ctx.session.instrument[`В наличии ${ctx.session.region}`] = total;
 

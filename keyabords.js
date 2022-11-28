@@ -7,11 +7,12 @@ const addInstrumentsMenu = new Menu("dynamic")
   for(const instrument of ctx.table.tableObj.getInstruments()){
     range
     .text(instrument, (ctx) => {
-      ctx.session.instrument = ctx.table.tableObj.findInstrument(instrument);
-
+      ctx.session.instrument = ctx.table.tableObj.findInstrument(instrument);      
       ctx.reply(
         `Вы выбрали <b>${ctx.session.instrument["Инструменты"]}</b>
-Сейчас на складе находится <b>${ctx.session.instrument["Количество"]}</b> единиц
+Сейчас на складе находится 
+ENG: <b>${ctx.session.instrument["В наличии ENG"]}</b> единиц
+UA: <b>${ctx.session.instrument["В наличии UA"]}</b> единиц
 
 К какому региону отностися инструмент?`,
         {
@@ -29,7 +30,6 @@ const addMaterialMenu = new Menu("dynamic_1")
   for(const material of ctx.table.tableObj.getComponents()){
     range
     .text(material, ctx => {
-      console.log(material)
       ctx.session.material = ctx.table.tableObj.findMaterial(material);
             try {
         ctx.reply(

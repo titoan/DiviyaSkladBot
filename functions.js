@@ -1,6 +1,7 @@
 let { chooseRegion } = require("./keyabords");
 
 function saleInstrument(ctx, data, bot, tableInfo) {
+  console.log(data)
   let saleInstrument_Query = `${data}`.match(/add__(.+)/g);
 
   if (data == saleInstrument_Query) {
