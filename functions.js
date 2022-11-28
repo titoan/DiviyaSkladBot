@@ -51,7 +51,6 @@ function stateToggle(ctx, data) {
     let obj = ctx.session.states
     for (const key in obj) {
         if (obj.hasOwnProperty.call(obj, key)) {
-          console.log(key)
             if(key.toLowerCase() === stateName){
                 obj[key] = true
             }else{

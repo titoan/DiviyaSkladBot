@@ -62,7 +62,6 @@ function TableInfo() {
   };
 
   this.addToTable_Instruments = function () {
-    console.log(this.jsonSheet_Instruments)
     XLSX.utils.sheet_add_json( this.worksheet_Instruments, this.jsonSheet_Instruments );
 
     this.worksheet_Instruments["!cols"] = [{ wch: 25 }]; // В теории должно давать каждой колонке ширину в 25 символов, но отрабатывает только на первой

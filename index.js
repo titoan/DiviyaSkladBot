@@ -279,7 +279,6 @@ bot.hears(/[0-9]/, (ctx) => {
     ].reduce((prev, curr) => prev + curr);
 
     ctx.session.instrument[`В наличии ${ctx.session.region}`] = total;
-    console.log(ctx.session.instrument)
 
     ctx.reply(
       `На склад было добавлено ${ctx.message.text} инструментов ${ctx.session.instrument["Инструменты"]}`,

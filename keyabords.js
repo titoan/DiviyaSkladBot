@@ -11,7 +11,7 @@ const addInstrumentsMenu = new Menu("dynamic")
 
       ctx.reply(
         `Вы выбрали <b>${ctx.session.instrument["Инструменты"]}</b>
-        Сейчас на складе находится <b>${ctx.session.instrument["Количество"]}</b> единиц
+Сейчас на складе находится <b>${ctx.session.instrument["Количество"]}</b> единиц
 
 К какому региону отностися инструмент?`,
         {
@@ -26,9 +26,10 @@ const addInstrumentsMenu = new Menu("dynamic")
 
 const addMaterialMenu = new Menu("dynamic_1")
 .dynamic((ctx, range) => {
-  for(material of ctx.table.tableObj.getComponents()){
+  for(const material of ctx.table.tableObj.getComponents()){
     range
     .text(material, ctx => {
+      console.log(material)
       ctx.session.material = ctx.table.tableObj.findMaterial(material);
             try {
         ctx.reply(
