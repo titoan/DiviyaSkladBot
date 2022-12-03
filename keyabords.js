@@ -54,6 +54,8 @@ const mainMenu = new Keyboard()
   .row()
   .text("Склад инструментов")
   .row()
+  .text("Частично готово")
+  .row()
   .text("Таблица")
   .resized();
 

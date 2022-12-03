@@ -77,12 +77,15 @@ function TableInfo() {
     XLSX.writeFile(this.workbook, "data/dataTable.xlsx");
   };
 
-  this.writeOff_Materials = function (number, materials) {
+  this.writeOff_Materials = function (number, materials, region) {
 
+    if(region == "ENG"){
+      let box = this.jsonSheet_Components.find(item => item["Комплектация"] == "Box Divya");
+      box["Количество"] = box["Количество"] - number;
+    }
+    
     materials.forEach((material) => {
-      let findMaterial = this.jsonSheet_Components.filter(
-        (item) => item["Комплектация"] == material        
-      );
+      let findMaterial = this.jsonSheet_Components.filter( (item) => item["Комплектация"] == material );
       findMaterial[0]["Количество"] = findMaterial[0]["Количество"] - number
     });
   };
