@@ -6,6 +6,8 @@ function TableInfo() {
   this.jsonSheet_Instruments = XLSX.utils.sheet_to_json( this.worksheet_Instruments );
   this.worksheet_Components = this.workbook.Sheets.components;
   this.jsonSheet_Components = XLSX.utils.sheet_to_json( this.worksheet_Components );
+  this.worksheet_noComplectInstruments = this.workbook.Sheets.tubes;
+  this.jsonSheet_noComplectInstruments = XLSX.utils.sheet_to_json( this.worksheet_noComplectInstruments );
 
   this.findInstrument = function (propName) {
     for (item of this.jsonSheet_Instruments) {
@@ -23,8 +25,30 @@ function TableInfo() {
     }
   };
 
+  this.findNoComplectInstruments = function(propName){
+    for (item of this.jsonSheet_noComplectInstruments) {
+      if (item["Инструменты"] == propName) {
+        return item;
+      }
+    }
+  }
+
   this.getInstruments = () =>
     this.jsonSheet_Instruments.map((item) => `${item["Инструменты"]}`);
+
+  this.getNoComplectInstruments = () => this.jsonSheet_noComplectInstruments.map((item) => `${item["Инструменты"]}`);
+
+  this.getNoComplectInstrumentsNum = () => this.jsonSheet_noComplectInstruments.map(item => `${item["Количество"]}`)
+
+  this.NoComplectInstrumentsInfoStr = () => {
+    let arr = [];
+
+    this.getNoComplectInstruments().forEach((item, idx) => {
+      arr.push(`🪗 ${item} — ${this.getNoComplectInstrumentsNum()[idx]}\n`)
+    })
+
+    return `${arr}`.replace(/[,]/g, "");
+  }
 
   this.getComponents = () =>
     this.jsonSheet_Components.map((item) => `${item["Комплектация"]}`);
@@ -38,7 +62,7 @@ function TableInfo() {
   this.getInstrumentsNumUA = () =>
     this.jsonSheet_Instruments.map((item) => `${item["В наличии UA"]}`);
 
-  this.componentsInfoStr = function () {
+  this.componentsInfoStr =  () => {
     let arr = [];
 
     this.getComponents().forEach((item, idx) => {
@@ -57,8 +81,8 @@ function TableInfo() {
         } \n`
       );
     }
-    let str = `${arr}`.replace(/[,]/g, "");
-    return str;
+
+    return `${arr}`.replace(/[,]/g, "");
   };
 
   this.addToTable_Instruments = function () {
@@ -69,10 +93,16 @@ function TableInfo() {
     XLSX.writeFile(this.workbook, "data/dataTable.xlsx");
   };
 
+  // ! no complect
+  this.addTotable_noComplectInstruments = function () {
+    XLSX.utils.sheet_add_json( this.worksheet_noComplectInstruments, this.jsonSheet_noComplectInstruments );
+    XLSX.writeFile(this.workbook, "data/dataTable.xlsx");
+  }
+
   this.addToTable_Materials = function () {
     XLSX.utils.sheet_add_json( this.worksheet_Components, this.jsonSheet_Components );
 
-    this.worksheet_Instruments["!cols"] = [{ wch: 25 }]; // В теории должно давать каждой колонке ширину в 25 символов, но отрабатывает только на первой
+    this.worksheet_Components["!cols"] = [{ wch: 25 }]; // В теории должно давать каждой колонке ширину в 25 символов, но отрабатывает только на первой
 
     XLSX.writeFile(this.workbook, "data/dataTable.xlsx");
   };
@@ -83,7 +113,7 @@ function TableInfo() {
       let box = this.jsonSheet_Components.find(item => item["Комплектация"] == "Box Divya");
       box["Количество"] = box["Количество"] - number;
     }
-    
+
     materials.forEach((material) => {
       let findMaterial = this.jsonSheet_Components.filter( (item) => item["Комплектация"] == material );
       findMaterial[0]["Количество"] = findMaterial[0]["Количество"] - number

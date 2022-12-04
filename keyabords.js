@@ -36,16 +36,30 @@ const addMaterialMenu = new Menu("dynamic_1")
           `Вы выбрали <b>${ctx.session.material["Комплектация"]}</b>
 Сейчас на складе находится <b>${ctx.session.material["Количество"]}</b> единиц
 
-Какое количество материала желаете ${
-            ctx.session.states.addMaterial ? "добавить" : "изъять"
-          }?`,
-          { parse_mode: "HTML" }
-        );
+Какое количество материала желаете ${ctx.session.states.addMaterial ? "добавить" : "изъять"}?`,{ parse_mode: "HTML" });
       } catch (e) {
         console.log(e);
       }
     })
     .row();
+  }
+})
+
+const addNoComplectInstrument = new Menu("dynamic_2")
+.dynamic((ctx, range) => {
+  for(const instrument of ctx.table.tableObj.getNoComplectInstruments()){
+    range
+    .text(instrument, ctx => {
+      ctx.session.instrument = ctx.table.tableObj.findNoComplectInstruments(instrument);
+
+      ctx.reply(`
+Вы выбрали <b>${ctx.session.instrument["Инструменты"]}</b>
+
+Сейчас на складе находится ${ctx.session.instrument["Количество"]}
+
+Какое количество инструментов желаете ${ctx.session.states.addNoComplectInstrument ? "добавить" : "изъять"}?`,{ parse_mode: "HTML" })
+    })
+    .row()
   }
 })
 
@@ -64,6 +78,10 @@ const instrumentsMenu = new InlineKeyboard()
   .text("Забрать инструмент со склада", "remove_instrument")
   .row()
   .text("Продать инструмент", "sale_instrument");
+
+  const noComplectInstruments = new InlineKeyboard()
+  .text("Добавить инструмент на склад", "add_noComplectInstrument")
+  .text("Забрать инструмент со склада", "remove_noComplectInstrument")
 
 const materialMenu = new InlineKeyboard()
   .text("Добавить материал на склад", "add_material")
@@ -89,5 +107,7 @@ module.exports = {
   writeTable,
   materialMenu,
   addMaterialMenu,
-  tableMenu,  
-};
+  tableMenu,
+  noComplectInstruments,
+  addNoComplectInstrument
+}

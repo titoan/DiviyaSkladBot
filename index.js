@@ -12,7 +12,9 @@ const {
   addInstrumentsMenu,
   writeTable,
   addMaterialMenu,
-  tableMenu
+  tableMenu,
+  noComplectInstruments,
+  addNoComplectInstrument
 } = require("./keyabords");
 const {
   TableInfo
@@ -38,6 +40,8 @@ function initial() {
       saleInstrument: false,
       addMaterial: false,
       removeMaterial: false,
+      addNoComplectInstrument: false,
+      removeNoComplectInstrument:false
     },
     table: {
       uploadTable: false,
@@ -63,7 +67,7 @@ bot.use(async (ctx, next) => {
 bot.use(session({
   initial
 }));
-bot.use(addInstrumentsMenu, addMaterialMenu)
+bot.use(addInstrumentsMenu, addMaterialMenu, addNoComplectInstrument)
 
 bot.command("start", async (ctx) => {
   await ctx.reply(
@@ -112,6 +116,11 @@ bot.hears("Таблица", (ctx) => {
   });
 });
 
+bot.hears("Частично готово", ctx => {
+  ctx.reply(`Ввиду непредвиденных обстоятельств на складе имеются недоукомплектованные инструменты
+
+${tableInfo.NoComplectInstrumentsInfoStr()}`, {reply_markup: noComplectInstruments})
+})
 
 bot.on("callback_query:data", async (ctx) => {
   data = ctx.callbackQuery.data;
@@ -136,6 +145,11 @@ bot.on("callback_query:data", async (ctx) => {
 
     ctx.reply(`🪗 Какой инструмент желаете продать? 🪗`, {
       reply_markup: addInstrumentsMenu,
+    });
+  }else if(data === "add_noComplectInstrument" || data === "remove_noComplectInstrument"){
+    stateToggle(ctx, data);    
+    ctx.reply(`🪗 Какой строй желаете ${data === "add_noComplectInstrument" ? "добавить на склад" : "изъять со склада"}? 🪗`, {
+      reply_markup: addNoComplectInstrument,
     });
   }
 
@@ -227,6 +241,23 @@ bot.on("callback_query:data", async (ctx) => {
         }
       );
     }
+    
+    if(ctx.session.states.addNoComplectInstrument || ctx.session.states.removeNoComplectInstrument){
+      
+      tableInfo.addTotable_noComplectInstruments();
+
+      ctx.session.states.addNoComplectInstrument = false;
+      ctx.session.states.removeNoComplectInstrument = false;
+
+      ctx.reply(
+        `Результат ваших непосильных усилй записан в таблицу в виде целочисленного значения.
+    
+Надеюсь, данный ряд совершённых действий имеет за собой не только некоторого рода завпечетленный факт условных показателей производительности, но и удовольствие
+        `, {
+          reply_markup: mainMenu
+        }
+      );
+    }
   }
 
   if (data === "get_table") {
@@ -265,10 +296,7 @@ bot.hears(/[0-9]/, (ctx) => {
     let region = `В наличии ${ctx.session.region}`;
     ctx.session.count = parseInt(ctx.message.text);
 
-    let total = [
-      parseInt(ctx.session.instrument[region]),
-      parseInt(ctx.message.text),
-    ].reduce((prev, curr) => prev + curr);
+    let total = [ parseInt(ctx.session.instrument[region]), parseInt(ctx.message.text) ].reduce((prev, curr) => prev + curr);
 
     ctx.session.instrument[`В наличии ${ctx.session.region}`] = total;
 
@@ -305,6 +333,21 @@ bot.hears(/[0-9]/, (ctx) => {
       `Было ${ctx.session.states.removeInstrument ? "изъято" : "продано"} ${
         ctx.message.text
       } инструментов ${ctx.session.instrument["Инструменты"]}`, {
+        reply_markup: writeTable
+      }
+    );
+  }
+
+  if(ctx.session.states.addNoComplectInstrument || ctx.session.states.removeNoComplectInstrument){
+
+    let total = [ parseInt(ctx.session.instrument["Количество"]), parseInt(ctx.message.text)]
+    .reduce((prev, curr) => ctx.session.states.addNoComplectInstrument ? prev + curr : prev - curr);
+
+    ctx.session.instrument["Количество"] = total;
+
+    ctx.reply(
+      `${
+        ctx.session.states.addNoComplectInstrument ? "На склад было добавлено" : "Со склада было изъято" } ${ctx.message.text} ${ctx.session.instrument["Инструменты"]}`, {
         reply_markup: writeTable
       }
     );
