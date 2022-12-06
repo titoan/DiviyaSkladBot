@@ -9,6 +9,20 @@ function TableInfo() {
   this.worksheet_noComplectInstruments = this.workbook.Sheets.tubes;
   this.jsonSheet_noComplectInstruments = XLSX.utils.sheet_to_json( this.worksheet_noComplectInstruments );
 
+  this.testFunc = () => {
+  let cell = this.worksheet_noComplectInstruments['A2'];
+
+  if(!cell.c) this.worksheet_noComplectInstruments.A2.c = [];
+
+  let comment_part = {
+    a:"s_ryb",
+    t:"I'm a little comment, short and stout!"
+  };
+
+  cell.c.push(comment_part);
+
+  }
+
   this.findInstrument = function (propName) {
     for (item of this.jsonSheet_Instruments) {
       if (item["Инструменты"] == propName) {
@@ -33,22 +47,12 @@ function TableInfo() {
     }
   }
 
-  this.getInstruments = () =>
-    this.jsonSheet_Instruments.map((item) => `${item["Инструменты"]}`);
+  this.getInstruments = () => this.jsonSheet_Instruments.map((item) => `${item["Инструменты"]}`);
 
   this.getNoComplectInstruments = () => this.jsonSheet_noComplectInstruments.map((item) => `${item["Инструменты"]}`);
 
   this.getNoComplectInstrumentsNum = () => this.jsonSheet_noComplectInstruments.map(item => `${item["Количество"]}`)
 
-  this.NoComplectInstrumentsInfoStr = () => {
-    let arr = [];
-
-    this.getNoComplectInstruments().forEach((item, idx) => {
-      arr.push(`🪗 ${item} — ${this.getNoComplectInstrumentsNum()[idx]}\n`)
-    })
-
-    return `${arr}`.replace(/[,]/g, "");
-  }
 
   this.getComponents = () =>
     this.jsonSheet_Components.map((item) => `${item["Комплектация"]}`);
@@ -84,6 +88,17 @@ function TableInfo() {
 
     return `${arr}`.replace(/[,]/g, "");
   };
+
+  this.NoComplectInstrumentsInfoStr = () => {
+    let arr = [];
+
+    this.getNoComplectInstruments().forEach((item, idx) => {
+      arr.push(`🪗 ${item} — ${this.getNoComplectInstrumentsNum()[idx]}\n`)
+    })
+
+    return `${arr}`.replace(/[,]/g, "");
+  }
+
 
   this.addToTable_Instruments = function () {
     XLSX.utils.sheet_add_json( this.worksheet_Instruments, this.jsonSheet_Instruments );
@@ -148,3 +163,4 @@ function TableInfo() {
 module.exports = {
   TableInfo,
 };
+

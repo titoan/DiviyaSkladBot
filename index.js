@@ -64,12 +64,21 @@ bot.use(async (ctx, next) => {
 });
 
 
-bot.use(session({
-  initial
-}));
+bot.use(session({initial}));
 bot.use(addInstrumentsMenu, addMaterialMenu, addNoComplectInstrument)
 
 bot.command("start", async (ctx) => {
+
+  tableInfo.testFunc()
+  // tableInfo.addTotable_noComplectInstruments();
+
+  console.log(tableInfo.worksheet_noComplectInstruments['A2'].c[0].t)
+  // console.log(tableInfo.jsonSheet_noComplectInstruments)
+
+  //! not iterable
+  // console.log(tableInfo.worksheet_noComplectInstruments) 
+
+
   await ctx.reply(
     `Вы находитесь в мастерской. Вероятно, вы здесь не просто так и у вас на сегодняшний день запланирована масса разнообразнейших задач.
 
