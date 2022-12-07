@@ -30,6 +30,7 @@ const addMaterialMenu = new Menu("dynamic_1")
   for(const material of ctx.table.tableObj.getComponents()){
     range
     .text(material, ctx => {
+      console.log(material)
       ctx.session.material = ctx.table.tableObj.findMaterial(material);
             try {
         ctx.reply(
