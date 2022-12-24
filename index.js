@@ -1,4 +1,3 @@
-// ! Создать массив инстурментов. Для вывода меню инстурментов использовать @grammyjs/menu => MenuRange
 const {
   Bot,
   session,
@@ -13,8 +12,10 @@ const {
   writeTable,
   addMaterialMenu,
   tableMenu,
-  noComplectInstruments,
-  addNoComplectInstrument
+  tubesMenu,
+  addTubes,
+  chainTubesMenu,
+  addChainTubes
 } = require("./keyabords");
 const {
   TableInfo
@@ -40,8 +41,10 @@ function initial() {
       saleInstrument: false,
       addMaterial: false,
       removeMaterial: false,
-      addNoComplectInstrument: false,
-      removeNoComplectInstrument:false
+      addTubes: false,
+      removeTubes:false,
+      addChainTubes: false,
+      removeChainTubes:false
     },
     table: {
       uploadTable: false,
@@ -65,19 +68,9 @@ bot.use(async (ctx, next) => {
 
 
 bot.use(session({initial}));
-bot.use(addInstrumentsMenu, addMaterialMenu, addNoComplectInstrument)
+bot.use(addInstrumentsMenu, addMaterialMenu, addTubes, addChainTubes)
 
 bot.command("start", async (ctx) => {
-
-  tableInfo.testFunc()
-  // tableInfo.addTotable_noComplectInstruments();
-
-  console.log(tableInfo.worksheet_noComplectInstruments['A2'].c[0].t)
-  // console.log(tableInfo.jsonSheet_noComplectInstruments)
-
-  //! not iterable
-  // console.log(tableInfo.worksheet_noComplectInstruments) 
-
 
   await ctx.reply(
     `Вы находитесь в мастерской. Вероятно, вы здесь не просто так и у вас на сегодняшний день запланирована масса разнообразнейших задач.
@@ -128,7 +121,13 @@ bot.hears("Таблица", (ctx) => {
 bot.hears("Частично готово", ctx => {
   ctx.reply(`Ввиду непредвиденных обстоятельств на складе имеются недоукомплектованные инструменты
 
-${tableInfo.NoComplectInstrumentsInfoStr()}`, {reply_markup: noComplectInstruments})
+${tableInfo.ChainTubesInfoStr()}`, {reply_markup: chainTubesMenu})
+})
+
+bot.hears("Трубки", ctx => {
+  ctx.reply(`Эти трубки ничем не связаны. Но у вас перед ними, явно, есть некоторые обязательства. 
+
+${tableInfo.tubesInfoStr()}`, {reply_markup: tubesMenu})
 })
 
 bot.on("callback_query:data", async (ctx) => {
@@ -155,11 +154,18 @@ bot.on("callback_query:data", async (ctx) => {
     ctx.reply(`🪗 Какой инструмент желаете продать? 🪗`, {
       reply_markup: addInstrumentsMenu,
     });
-  }else if(data === "add_noComplectInstrument" || data === "remove_noComplectInstrument"){
+  }else if(data === "add_Tubes" || data === "remove_Tubes"){
     stateToggle(ctx, data);    
-    ctx.reply(`🪗 Какой строй желаете ${data === "add_noComplectInstrument" ? "добавить на склад" : "изъять со склада"}? 🪗`, {
-      reply_markup: addNoComplectInstrument,
+    ctx.reply(`🪗 Какой строй желаете ${data === "add_Tubes" ? "добавить на склад" : "изъять со склада"}? 🪗`, {
+      reply_markup: addTubes,
     });
+  }else if(data === "add_chainTubes" || data === "remove_chainTubes"){
+    stateToggle(ctx, data);
+    console.log(ctx.session.states)
+    ctx.reply(`🪗 Какой строй желаете ${data === "add_chainTubes" ? "добавить на склад" : "изъять со склада"}? 🪗`, {
+      reply_markup: addChainTubes,
+    });
+
   }
 
   //? Проверка на выполнения условия для добавления инструмента; Поиск выбранного инструмента; Выбор региона к которому относится инструмент
@@ -251,12 +257,29 @@ bot.on("callback_query:data", async (ctx) => {
       );
     }
     
-    if(ctx.session.states.addNoComplectInstrument || ctx.session.states.removeNoComplectInstrument){
+    if(ctx.session.states.addTubes || ctx.session.states.removeTubes){
       
-      tableInfo.addTotable_noComplectInstruments();
+      tableInfo.addTotable_Tubes();
 
-      ctx.session.states.addNoComplectInstrument = false;
-      ctx.session.states.removeNoComplectInstrument = false;
+      ctx.session.states.addTubes = false;
+      ctx.session.states.removeTubes = false;
+
+      ctx.reply(
+        `Результат ваших непосильных усилй записан в таблицу в виде целочисленного значения.
+    
+Надеюсь, данный ряд совершённых действий имеет за собой не только некоторого рода завпечетленный факт условных показателей производительности, но и удовольствие
+        `, {
+          reply_markup: mainMenu
+        }
+      );
+    }
+
+    if(ctx.session.states.addChainTubes  || ctx.session.states.removeChainTubes){
+      
+      tableInfo.addToTable_chainTubes();
+
+      ctx.session.states.addTubes = false;
+      ctx.session.states.removeTubes = false;
 
       ctx.reply(
         `Результат ваших непосильных усилй записан в таблицу в виде целочисленного значения.
@@ -347,16 +370,31 @@ bot.hears(/[0-9]/, (ctx) => {
     );
   }
 
-  if(ctx.session.states.addNoComplectInstrument || ctx.session.states.removeNoComplectInstrument){
+  if(ctx.session.states.addTubes || ctx.session.states.removeTubes){
 
     let total = [ parseInt(ctx.session.instrument["Количество"]), parseInt(ctx.message.text)]
-    .reduce((prev, curr) => ctx.session.states.addNoComplectInstrument ? prev + curr : prev - curr);
+    .reduce((prev, curr) => ctx.session.states.addTubes ? prev + curr : prev - curr);
 
     ctx.session.instrument["Количество"] = total;
 
     ctx.reply(
       `${
-        ctx.session.states.addNoComplectInstrument ? "На склад было добавлено" : "Со склада было изъято" } ${ctx.message.text} ${ctx.session.instrument["Инструменты"]}`, {
+        ctx.session.states.addTubes ? "На склад было добавлено" : "Со склада было изъято" } ${ctx.message.text} ${ctx.session.instrument["Инструменты"]}`, {
+        reply_markup: writeTable
+      }
+    );
+  }
+  
+  if(ctx.session.states.addChainTubes || ctx.session.states.removeChainTubes){
+
+    let total = [ parseInt(ctx.session.instrument["Количество"]), parseInt(ctx.message.text)]
+    .reduce((prev, curr) => ctx.session.states.addChainTubes ? prev + curr : prev - curr);
+
+    ctx.session.instrument["Количество"] = total;
+
+    ctx.reply(
+      `${
+        ctx.session.states.addChainTubes ? "На склад было добавлено" : "Со склада было изъято" } ${ctx.message.text} ${ctx.session.instrument["Инструменты"]}`, {
         reply_markup: writeTable
       }
     );
