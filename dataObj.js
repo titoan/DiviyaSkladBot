@@ -26,83 +26,7 @@ class Sheet extends Table{
 
   getItem = (colName) => this.jsonSheet.map((item) => `${item[colName]}`);
 
-  getItemNum = (colName) => this.jsonSheet.map(item => `${item[colName]}`)
 
-  getItemNumReg = (colName) => this.jsonSheet.map((item) => `${item[colName]}`);
-
-  itemInfoStr = (itemColName, numberColName, icon) => {
-    let arr = [];
-
-    this.getItem(itemColName).forEach((item, idx) => {
-      arr.push(`${icon} ${item} — ${this.getItemNum(numberColName)[idx]}\n`)
-    })
-
-    return `${arr}`.replace(/[,]/g, "");
-  }
-
-  itemInfoStrReg = (itemColName, regENG, regUA, icon) => {
-    let arr = [];
-    for (let i = 0; i < this.getItem(itemColName).length; i++) {
-      arr.push(
-        `${icon}  ${this.getItem(itemColName)[i]} — ${this.getItemNumReg(regENG)[i]} / ${ this.getItemNumReg(regUA)[i] } \n`
-      );
-    }
-
-    return `${arr}`.replace(/[,]/g, "");
-  }
-
-  writeOff_Materials = (number, materials) => {
-
-    for(key in materials){
-      let findMaterial = this.jsonSheet.filter( (item) => item["Комплектация"] == key );
-      findMaterial[0]["Количество"] = findMaterial[0]["Количество"] - materials[key] * number
-    }    
-  };
-
-  addToTable = function () {
-    XLSX.utils.sheet_add_json( this.worksheet, this.jsonSheet );
-
-    XLSX.writeFile(this.workbook, "data/dataTable.xlsx");
-  };
-
-  material_standart = {
-    "Миникорд серый 110 см": 2,
-    "Паракорд бордо 35 см":1,
-    "Паракорд бордо 48 см":1,
-    "Планки дерево Б": 1,
-    "Планки дерево М": 1,
-    "Стики": 1,
-    "Шнур с карабином": 1,
-    "Флизелин стандарт": 1,
-    "Подставки": 1,
-    "Bag стандарт": 1
-};
-
-  material_ether = {
-    "Миникорд серый 110 см": 2,
-    "Паракорд бордо 35 см": 1,
-    "Паракорд бордо 48 см": 1,    
-    "Планки дерево Б": 1,
-    "Планки дерево М": 1,
-    "Стики": 1,
-    "Шнур с карабином": 1,
-    "Флизелин стандарт": 1,
-    "Подставки": 1,   
-    "Bag эфир": 1,
-  };
-
-  material_ether_acril = {
-    "Миникорд серый 110 см": 2,
-    "Паракорд бордо 35 см": 1,
-    "Паракорд бордо 48 см": 1,    
-    "Планки акрил Б": 1,
-    "Планки акрил М": 1,
-    "Стики": 1,
-    "Шнур с карабином": 1,
-    "Флизелин стандарт": 1,
-    "Подставки": 1,   
-    "Bag эфир": 1,
-  }
 }
 
 function TableInfo() {
@@ -159,7 +83,7 @@ function TableInfo() {
     }
   }
 
-
+  
 
   this.getInstruments = () => this.jsonSheet_Instruments.map((item) => `${item["Инструменты"]}`);
   this.getInstrumentsNumEN = () => this.jsonSheet_Instruments.map((item) => `${item["В наличии ENG"]}`);
@@ -187,6 +111,7 @@ function TableInfo() {
     return `${arr}`.replace(/[,]/g, "");
   }
 
+
   this.getChainTubes = () => this.jsonSheet_chainTubes.map((item) => `${item["Инструменты"]}`);
   this.getChainTubesNum = () => this.jsonSheet_chainTubes.map(item => `${item["Количество"]}`)
   this.ChainTubesInfoStr =  () => {
@@ -199,6 +124,7 @@ function TableInfo() {
     return `${arr}`.replace(/[,]/g, "");
   };
 
+
   this.getComponents = () => this.jsonSheet_Components.map((item) => `${item["Комплектация"]}`);
   this.getComponentsNum = () => this.jsonSheet_Components.map((item) => `${item["Количество"]}`);
   this.componentsInfoStr =  () => {
@@ -210,6 +136,7 @@ function TableInfo() {
 
     return `${arr}`.replace(/[,]/g, "");
   };
+
 
   this.addToTable_Instruments = function () {
     XLSX.utils.sheet_add_json( this.worksheet_Instruments, this.jsonSheet_Instruments );
