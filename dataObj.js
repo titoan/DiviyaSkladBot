@@ -50,10 +50,8 @@ function TableInfo() {
   }
 
   this.getInstruments = () => this.jsonSheet_Instruments.map((item) => `${item["Инструменты"]}`);
-  this.getInstrumentsNumEN = () =>
-    this.jsonSheet_Instruments.map((item) => `${item["В наличии ENG"]}`);
-  this.getInstrumentsNumUA = () =>
-    this.jsonSheet_Instruments.map((item) => `${item["В наличии UA"]}`);
+  this.getInstrumentsNumEN = () => this.jsonSheet_Instruments.map((item) => `${item["В наличии ENG"]}`);
+  this.getInstrumentsNumUA = () => this.jsonSheet_Instruments.map((item) => `${item["В наличии UA"]}`);
   this.instrumentsInfoStr = function () {
     let arr = [];
     for (let i = 0; i < this.getInstruments().length; i++) {
@@ -93,10 +91,8 @@ function TableInfo() {
   };
 
 
-  this.getComponents = () =>
-    this.jsonSheet_Components.map((item) => `${item["Комплектация"]}`);
-  this.getComponentsNum = () =>
-    this.jsonSheet_Components.map((item) => `${item["Количество"]}`);
+  this.getComponents = () => this.jsonSheet_Components.map((item) => `${item["Комплектация"]}`);
+  this.getComponentsNum = () => this.jsonSheet_Components.map((item) => `${item["Количество"]}`);
   this.componentsInfoStr =  () => {
     let arr = [];
 
@@ -109,6 +105,9 @@ function TableInfo() {
 
 
   this.addToTable_Instruments = function () {
+    
+    this.setLastChangeDate(this.jsonSheet_Instruments)
+    
     XLSX.utils.sheet_add_json( this.worksheet_Instruments, this.jsonSheet_Instruments );
 
     XLSX.utils.sheet_add_aoa(this.worksheet, [["Инструменты", "В наличии ENG", "В наличии UA","Бронь ENG","Бронь UA"]], { origin: "A1" })
@@ -119,11 +118,13 @@ function TableInfo() {
   };
 
   this.addTotable_Tubes = function () {
+    this.setLastChangeDate(this.jsonSheet_Tubes)
     XLSX.utils.sheet_add_json( this.worksheet_Tubes, this.jsonSheet_Tubes );
     XLSX.writeFile(this.workbook, "data/dataTable.xlsx");
   }
 
   this.addToTable_Materials = function () {
+    this.setLastChangeDate(this.jsonSheet_Components)
     XLSX.utils.sheet_add_json( this.worksheet_Components, this.jsonSheet_Components );
 
     this.worksheet_Components["!cols"] = [{ wch: 25 }]; // В теории должно давать каждой колонке ширину в 25 символов, но отрабатывает только на первой
@@ -132,6 +133,7 @@ function TableInfo() {
   };
 
   this.addToTable_chainTubes = function(){
+    this.setLastChangeDate(this.jsonSheet_chainTubes)
     XLSX.utils.sheet_add_json( this.worksheet_chainTubes, this.jsonSheet_chainTubes );
     XLSX.writeFile(this.workbook, "data/dataTable.xlsx");
   }
@@ -143,6 +145,21 @@ function TableInfo() {
       findMaterial[0]["Количество"] = findMaterial[0]["Количество"] - materials[key] * number
     }    
   };
+
+  this.setLastChangeDate = (jsonSheet) => {
+    dateFild = jsonSheet.find(item => item['Date'])
+    curDate = `${new Date().getDate()}.${new Date().getMonth() + 1}.${new Date().getFullYear()} ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}`
+    dateFild['Date'] = curDate
+  }
+
+  this.getLastChangeDate = (jsonSheet) => {
+    try{
+      return `${jsonSheet.find(item => item['Date'])["Date"]}`
+    }catch(err){
+      if (err) throw err
+    }
+  } 
+
 
   this.material_standart = {
     "Миникорд серый 110 см": 2,
