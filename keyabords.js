@@ -58,7 +58,7 @@ const addTubes = new Menu("dynamic_2")
 
 Сейчас на складе находится ${ctx.session.instrument["Количество"]} трубок
 
-Какое количество трубок желаете ${ctx.session.states.addTubes ? "добавить" : "изъять"}?`,{ parse_mode: "HTML" })
+Какое количество комплектов трубок желаете ${ctx.session.states.addTubes ? "добавить" : "изъять"}?`,{ parse_mode: "HTML" })
     })
     .row()
   }
