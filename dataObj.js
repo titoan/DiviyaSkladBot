@@ -1,4 +1,33 @@
 const XLSX = require("xlsx");
+const fs = require("fs");
+
+class Table{
+  constructor(path){
+    this.path = path
+    this.workbook = XLSX.readFile(this.path);
+  }
+}
+
+class Sheet extends Table{
+  constructor(path, sheetName){
+    super(path)
+
+    this.worksheet = this.workbook.Sheets[sheetName]
+    this.jsonSheet = XLSX.utils.sheet_to_json(this.worksheet);
+  }
+
+  findItem = (colName, itemName)=>{
+    for (let item of this.jsonSheet) {
+      if (item[colName] == itemName) {
+        return item;
+      }
+    }
+  }
+
+  getItem = (colName) => this.jsonSheet.map((item) => `${item[colName]}`);
+
+
+}
 
 function TableInfo() {
   this.workbook = XLSX.readFile("data/dataTable.xlsx");
@@ -15,7 +44,15 @@ function TableInfo() {
   this.worksheet_chainTubes = this.workbook.Sheets.chain_tubes;
   this.jsonSheet_chainTubes = XLSX.utils.sheet_to_json( this.worksheet_chainTubes );
 
-  this.testFunc = () => {}
+  this.testFunc =  function() {
+  let res;
+  fs.stat("data/dataTable.xlsx", function(err, stats){
+    if(err) throw err
+    res = `${stats.mtime}`
+  })
+  console.log(res)
+  return res
+  }
 
   this.findInstrument = function (propName) {
     for (item of this.jsonSheet_Instruments) {
@@ -24,7 +61,6 @@ function TableInfo() {
       }
     }
   };
-
   this.findMaterial = function (propName) {
     for (item of this.jsonSheet_Components) {
       if (item["Комплектация"] == propName) {
@@ -32,7 +68,6 @@ function TableInfo() {
       }
     }
   };
-
   this.findTubes = function(propName){
     for (item of this.jsonSheet_Tubes) {
       if (item["Инструменты"] == propName) {
@@ -40,7 +75,6 @@ function TableInfo() {
       }
     }
   }
-
   this.findChainTubes = function(propName){
     for (item of this.jsonSheet_chainTubes) {
       if (item["Инструменты"] == propName) {
@@ -49,6 +83,8 @@ function TableInfo() {
     }
   }
 
+  
+
   this.getInstruments = () => this.jsonSheet_Instruments.map((item) => `${item["Инструменты"]}`);
   this.getInstrumentsNumEN = () => this.jsonSheet_Instruments.map((item) => `${item["В наличии ENG"]}`);
   this.getInstrumentsNumUA = () => this.jsonSheet_Instruments.map((item) => `${item["В наличии UA"]}`);
@@ -56,9 +92,7 @@ function TableInfo() {
     let arr = [];
     for (let i = 0; i < this.getInstruments().length; i++) {
       arr.push(
-        `🪗 ${this.getInstruments()[i]} — ${this.getInstrumentsNumEN()[i]} / ${
-          this.getInstrumentsNumUA()[i]
-        } \n`
+        `🪗 ${this.getInstruments()[i]} — ${this.getInstrumentsNumEN()[i]} / ${ this.getInstrumentsNumUA()[i] } \n`
       );
     }
 
@@ -203,5 +237,7 @@ function TableInfo() {
 
 module.exports = {
   TableInfo,
+  Table,
+  Sheet
 };
 

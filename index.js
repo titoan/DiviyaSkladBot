@@ -18,7 +18,7 @@ const {
   addChainTubes
 } = require("./keyabords");
 const {
-  TableInfo
+  TableInfo, Sheet, Table
 } = require("./dataObj");
 const {
   stateToggle
@@ -32,6 +32,9 @@ const bot = new Bot(token);
 bot.api.config.use(hydrateFiles(token));
 
 let tableInfo = new TableInfo();
+
+let components_sheet = new Sheet("data/dataTable.xlsx", "components");
+let instruments_sheet = new Sheet("data/dataTable.xlsx", "ready_to_sale");
 
 function initial() {
   return {
@@ -61,7 +64,9 @@ function initial() {
 // * Добавляем в объект контекста экземпляр класса таблицы. 
 bot.use(async (ctx, next) => {
   ctx.table = {
-    tableObj: tableInfo
+    tableObj: tableInfo,
+    componentsObj: components_sheet,
+    instrumentsObj: instruments_sheet
   };
   await next();
 });
@@ -71,7 +76,13 @@ bot.use(session({initial}));
 bot.use(addInstrumentsMenu, addMaterialMenu, addTubes, addChainTubes)
 
 bot.command("start", async (ctx) => {
-
+  
+  try{
+    // console.log(sheet.getItemNum("Комплектация", "Паракорд серый 35 см"))
+  }catch(err){
+    if(err) throw err
+  }
+// tableInfo.testFunc()
   await ctx.reply(
     `Вы находитесь в мастерской. Вероятно, вы здесь не просто так и у вас на сегодняшний день запланирована масса разнообразнейших задач.
 
@@ -93,7 +104,7 @@ bot.hears("Склад инструментов", (ctx) => {
 Всего доступно инструментов:
 Название - ENG/UA
 ——————————
-${tableInfo.instrumentsInfoStr()}
+${instruments_sheet.itemInfoStrReg("Инструменты", "В наличии ENG", "В наличии UA", "🪗")}
     `, {
       reply_markup: instrumentsMenu,
     }
@@ -105,11 +116,9 @@ bot.hears("Склад материалов", (ctx) => {
     `Вы на складе материалов
 Здесь светло и просторно. Вдоль стен рядами стоят стелажи. На полках разложены готовые к использованию материалы. 
 
-Последние изменения на складе: ${tableInfo.getLastChangeDate(tableInfo.jsonSheet_Components)}
-
 Всего доступно материалов:
 ——————————
-${tableInfo.componentsInfoStr()}`, {
+${components_sheet.itemInfoStr("Комплектация", "Количество", "🎼")}`, {
       reply_markup: materialMenu
     }
   );
@@ -144,8 +153,7 @@ bot.on("callback_query:data", async (ctx) => {
   if (data === "add_instrument" || data === "remove_instrument") {
 
     stateToggle(ctx, data);
-
-    // ! Динамическое меню  
+        
     ctx.reply(`🪗 Какой строй желаете ${data === "add_instrument" ? "добавить на склад" : "изъять со склада"}? 🪗`, {
       reply_markup: addInstrumentsMenu,
     });
@@ -219,8 +227,11 @@ bot.on("callback_query:data", async (ctx) => {
         await tableInfo.writeOff_Materials(ctx.session.count, tableInfo.material_standart, ctx.session.region);
       }
 
-      await tableInfo.addToTable_Materials();
-      await tableInfo.addToTable_Instruments();
+      await components_sheet.addToTable()
+      await instruments_sheet.addToTable()
+
+      // await tableInfo.addToTable_Materials();
+      // await tableInfo.addToTable_Instruments();
 
       ctx.session.states.addInstrument = false;
 
@@ -250,7 +261,8 @@ bot.on("callback_query:data", async (ctx) => {
     }
 
     if (ctx.session.states.addMaterial || ctx.session.states.removeMaterial) {
-      tableInfo.addToTable_Materials();
+      components_sheet.addToTable()      
+      
       ctx.session.states.addMaterial = false;
       ctx.session.states.removeMateria = false;
       ctx.reply(
