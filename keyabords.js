@@ -27,11 +27,11 @@ UA: <b>${ctx.session.instrument["В наличии UA"]}</b> единиц
 
 const addMaterialMenu = new Menu("dynamic_1")
 .dynamic((ctx, range) => {
-  for(const material of ctx.table.componentsObj.getItem("Комплектация")){
+  for(const material of ctx.table.tableObj.getComponents()){
     range
     .text(material, ctx => {
       console.log(material)
-      ctx.session.material = ctx.table.componentsObj.findItem("Комплектация", material);
+      ctx.session.material = ctx.table.tableObj.findMaterial(material);
             try {
         ctx.reply(
           `Вы выбрали <b>${ctx.session.material["Комплектация"]}</b>
@@ -46,27 +46,6 @@ const addMaterialMenu = new Menu("dynamic_1")
   }
 })
 
-// const addMaterialMenu = new Menu("dynamic_1")
-// .dynamic((ctx, range) => {
-//   for(const material of ctx.table.tableObj.getComponents()){
-//     range
-//     .text(material, ctx => {
-//       console.log(material)
-//       ctx.session.material = ctx.table.tableObj.findMaterial(material);
-//             try {
-//         ctx.reply(
-//           `Вы выбрали <b>${ctx.session.material["Комплектация"]}</b>
-// Сейчас на складе находится <b>${ctx.session.material["Количество"]}</b> единиц
-
-// Какое количество материала желаете ${ctx.session.states.addMaterial ? "добавить" : "изъять"}?`,{ parse_mode: "HTML" });
-//       } catch (e) {
-//         console.log(e);
-//       }
-//     })
-//     .row();
-//   }
-// })
-
 const addTubes = new Menu("dynamic_2")
 .dynamic((ctx, range) => {
   for(const tube of ctx.table.tableObj.getTubes()){
@@ -79,7 +58,7 @@ const addTubes = new Menu("dynamic_2")
 
 Сейчас на складе находится ${ctx.session.instrument["Количество"]} трубок
 
-Какое количество трубок желаете ${ctx.session.states.addTubes ? "добавить" : "изъять"}?`,{ parse_mode: "HTML" })
+Какое количество комплектов трубок желаете ${ctx.session.states.addTubes ? "добавить" : "изъять"}?`,{ parse_mode: "HTML" })
     })
     .row()
   }
