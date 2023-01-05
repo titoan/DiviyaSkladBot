@@ -71,7 +71,7 @@ bot.use(session({initial}));
 bot.use(addInstrumentsMenu, addMaterialMenu, addTubes, addChainTubes)
 
 bot.command("start", async (ctx) => {
-
+tableInfo.testFunc()
   await ctx.reply(
     `Вы находитесь в мастерской. Вероятно, вы здесь не просто так и у вас на сегодняшний день запланирована масса разнообразнейших задач.
 

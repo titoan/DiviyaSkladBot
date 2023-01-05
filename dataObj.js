@@ -15,7 +15,13 @@ function TableInfo() {
   this.worksheet_chainTubes = this.workbook.Sheets.chain_tubes;
   this.jsonSheet_chainTubes = XLSX.utils.sheet_to_json( this.worksheet_chainTubes );
 
-  this.testFunc = () => {}
+  this.worksheet_Passports = this.workbook.Sheets.passports;
+  this.jsonSheet_Passports = XLSX.utils.sheet_to_json( this.worksheet_Passports );
+
+
+  this.testFunc = () => {
+    console.log(this.jsonSheet_Passports)
+  }
 
   this.findInstrument = function (propName) {
     for (item of this.jsonSheet_Instruments) {
@@ -208,7 +214,7 @@ function TableInfo() {
     "Bag эфир": 1,
   }
 
-  
+
 }
 
 module.exports = {
