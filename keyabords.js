@@ -31,10 +31,11 @@ const addMaterialMenu = new Menu("dynamic_1")
     range
     .text(material, ctx => {
       console.log(material)
+
       ctx.session.material = ctx.table.tableObj.findMaterial(material);
             try {
         ctx.reply(
-          `Вы выбрали <b>${ctx.session.material["Комплектация"]}</b>
+          `Вы выбрали <b>${material}</b>
 Сейчас на складе находится <b>${ctx.session.material["Количество"]}</b> единиц
 
 Какое количество материала желаете ${ctx.session.states.addMaterial ? "добавить" : "изъять"}?`,{ parse_mode: "HTML" });
