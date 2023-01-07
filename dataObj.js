@@ -109,6 +109,12 @@ function TableInfo() {
     return `${arr}`.replace(/[,]/g, "");
   };
 
+  this.addToTable = (workSheet, jsonSheet)=>{
+
+    XLSX.utils.sheet_add_json(workSheet, jsonSheet );
+    XLSX.writeFile(this.workbook, "data/dataTable.xlsx");
+  }
+
 
   this.addToTable_Instruments = function () {
     
@@ -132,8 +138,6 @@ function TableInfo() {
   this.addToTable_Materials = function () {
     // this.setLastChangeDate(this.jsonSheet_Components)
     XLSX.utils.sheet_add_json( this.worksheet_Components, this.jsonSheet_Components );
-
-    this.worksheet_Components["!cols"] = [{ wch: 25 }]; // В теории должно давать каждой колонке ширину в 25 символов, но отрабатывает только на первой
 
     XLSX.writeFile(this.workbook, "data/dataTable.xlsx");
   };
