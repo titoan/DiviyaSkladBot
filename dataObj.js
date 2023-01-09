@@ -55,6 +55,23 @@ function TableInfo() {
     }
   }
 
+  this.getItem = (jsonSheet, colName="")=> jsonSheet.map((item) => `${item[colName]}`);
+
+  this.ItemsInfoStr = (jsonSheet,colName,colNameEng,colNameUa, icon) => {
+    let arr = [];
+    let itemsName = this.getItem(jsonSheet, colName)
+    let itemsRegEng = this.getInstrumentsNumReg(jsonSheet, colNameEng)
+    let itemsRegUa = this.getInstrumentsNumReg(jsonSheet, colNameUa)
+
+    for(let i = 0; i < itemsName.length; i++){
+      arr.push(`${icon}${itemsName[i]} — ${itemsRegEng[i]} / ${itemsRegUa[i]}\n`)
+    }
+
+    return `${arr}`.replace(/[,]/g, "");
+  }
+
+  this.getInstrumentsNumReg = (jsonSheet, regName)=>jsonSheet.map(item=>`${item[regName]}`)
+
   this.getInstruments = () => this.jsonSheet_Instruments.map((item) => `${item["Инструменты"]}`);
   this.getInstrumentsNumEN = () => this.jsonSheet_Instruments.map((item) => `${item["В наличии ENG"]}`);
   this.getInstrumentsNumUA = () => this.jsonSheet_Instruments.map((item) => `${item["В наличии UA"]}`);

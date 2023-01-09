@@ -135,6 +135,12 @@ bot.hears("Трубки", ctx => {
 ${tableInfo.tubesInfoStr()}`, {reply_markup: tubesMenu})
 })
 
+bot.hears("Пасспорта", ctx => { 
+  ctx.reply(`Название - ENG/UA
+
+${tableInfo.ItemsInfoStr(tableInfo.jsonSheet_Passports, "Паспорт", "ENG", "UA", "🧧")}`)
+})
+
 bot.on("callback_query:data", async (ctx) => {
   data = ctx.callbackQuery.data;
 
@@ -143,7 +149,6 @@ bot.on("callback_query:data", async (ctx) => {
 
     stateToggle(ctx, data);
 
-    // ! Динамическое меню  
     ctx.reply(`🪗 Какой строй желаете ${data === "add_instrument" ? "добавить на склад" : "изъять со склада"}? 🪗`, {
       reply_markup: addInstrumentsMenu,
     });
