@@ -217,8 +217,8 @@ bot.on("callback_query:data", async (ctx) => {
         await tableInfo.writeOff_Materials(ctx.session.count, tableInfo.material_standart, ctx.session.region);
       }
 
-      await tableInfo.addToTable_Materials();
-      await tableInfo.addToTable_Instruments();
+      await  tableInfo.addToTable(tableInfo.worksheet_Components, tableInfo.jsonSheet_Components)
+      await tableInfo.addToTable(tableInfo.worksheet_Instruments, tableInfo.jsonSheet_Instruments)
 
       ctx.session.states.addInstrument = false;
 
@@ -233,7 +233,9 @@ bot.on("callback_query:data", async (ctx) => {
     }
 
     if (ctx.session.states.saleInstrument || ctx.session.states.removeInstrument) {
-      tableInfo.addToTable_Instruments();
+      
+      tableInfo.addToTable(tableInfo.worksheet_Instruments, tableInfo.jsonSheet_Instruments)
+
       ctx.session.states.saleInstrument = false;
       ctx.session.states.removeInstrument = false;
 
@@ -248,7 +250,8 @@ bot.on("callback_query:data", async (ctx) => {
     }
 
     if (ctx.session.states.addMaterial || ctx.session.states.removeMaterial) {
-      tableInfo.addToTable_Materials();
+      
+      tableInfo.addToTable(tableInfo.worksheet_Components, tableInfo.jsonSheet_Components)
       ctx.session.states.addMaterial = false;
       ctx.session.states.removeMateria = false;
       ctx.reply(
@@ -261,9 +264,9 @@ bot.on("callback_query:data", async (ctx) => {
       );
     }
     
-    if(ctx.session.states.addTubes || ctx.session.states.removeTubes){
-      
-      tableInfo.addTotable_Tubes();
+    if(ctx.session.states.addTubes || ctx.session.states.removeTubes){      
+
+      tableInfo.addToTable(tableInfo.worksheet_Tubes, tableInfo.jsonSheet_Tubes)
 
       ctx.session.states.addTubes = false;
       ctx.session.states.removeTubes = false;
@@ -278,9 +281,9 @@ bot.on("callback_query:data", async (ctx) => {
       );
     }
 
-    if(ctx.session.states.addChainTubes  || ctx.session.states.removeChainTubes){
+    if(ctx.session.states.addChainTubes  || ctx.session.states.removeChainTubes){      
       
-      tableInfo.addToTable_chainTubes();
+      tableInfo.addToTable(tableInfo.worksheet_chainTubes, tableInfo.jsonSheet_chainTubes)
 
       ctx.session.states.addTubes = false;
       ctx.session.states.removeTubes = false;
