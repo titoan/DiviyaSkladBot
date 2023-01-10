@@ -93,7 +93,7 @@ bot.hears("Склад инструментов", (ctx) => {
 Всего доступно инструментов:
 Название - ENG/UA
 ——————————
-${tableInfo.instrumentsInfoStr()}
+${tableInfo.itemsInfoStrReg(tableInfo.jsonSheet_Instruments, "Инструменты", "В наличии ENG", "В наличии UA", "🪗")}
     `, {
       reply_markup: instrumentsMenu,
     }
@@ -109,7 +109,7 @@ bot.hears("Склад материалов", (ctx) => {
 
 Всего доступно материалов:
 ——————————
-${tableInfo.componentsInfoStr()}`, {
+${tableInfo.itemsInfoStr(tableInfo.jsonSheet_Components, "Комплектация", "Количество", "🎼")}`, {
       reply_markup: materialMenu
     }
   );
@@ -126,13 +126,13 @@ bot.hears("Частично готово", ctx => {
 
 
 
-${tableInfo.ChainTubesInfoStr()}`, {reply_markup: chainTubesMenu})
+${tableInfo.itemsInfoStr(tableInfo.jsonSheet_chainTubes, "Инструменты", "Количество", "🎼")}`, {reply_markup: chainTubesMenu})
 })
 
 bot.hears("Трубки", ctx => {
   ctx.reply(`Эти трубки ничем не связаны. Но у вас перед ними, явно, есть некоторые обязательства.  
 
-${tableInfo.tubesInfoStr()}`, {reply_markup: tubesMenu})
+${tableInfo.itemsInfoStr(tableInfo.jsonSheet_Tubes, "Инструменты", "Количество", "🪗")}`, {reply_markup: tubesMenu})
 })
 
 bot.hears("Паспорта", ctx => {
@@ -142,7 +142,7 @@ bot.hears("Паспорта", ctx => {
 
 Название - ENG/UA
 
-${tableInfo.ItemsInfoStr(tableInfo.jsonSheet_Passports, "Паспорт", "ENG", "UA", "🧧")}`)
+${tableInfo.itemsInfoStrReg(tableInfo.jsonSheet_Passports, "Паспорт", "ENG", "UA", "🧧")}`)
 })
 
 bot.on("callback_query:data", async (ctx) => {

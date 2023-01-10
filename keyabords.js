@@ -1,10 +1,10 @@
 const { Keyboard, InlineKeyboard } = require("grammy");
-const { Menu, MenuRange } = require("@grammyjs/menu");
+const { Menu } = require("@grammyjs/menu");
 
 // ! Динамическое меню
 const addInstrumentsMenu = new Menu("dynamic")
 .dynamic((ctx, range) => {
-  for(const instrument of ctx.table.tableObj.getInstruments()){
+  for(const instrument of ctx.table.tableObj.getItem(ctx.table.tableObj.jsonSheet_Instruments, "Инструменты")){
     range
     .text(instrument, (ctx) => {
       ctx.session.instrument = ctx.table.tableObj.findInstrument(instrument);      
@@ -27,10 +27,9 @@ UA: <b>${ctx.session.instrument["В наличии UA"]}</b> единиц
 
 const addMaterialMenu = new Menu("dynamic_1")
 .dynamic((ctx, range) => {
-  for(const material of ctx.table.tableObj.getComponents()){
+  for(const material of ctx.table.tableObj.getItem(ctx.table.tableObj.jsonSheet_Components, "Комплектация")){
     range
-    .text(material, ctx => {
-      console.log(material)
+    .text(material, ctx => {      
 
       ctx.session.material = ctx.table.tableObj.findMaterial(material);
             try {

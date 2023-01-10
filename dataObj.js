@@ -19,9 +19,7 @@ function TableInfo() {
   this.jsonSheet_Passports = XLSX.utils.sheet_to_json( this.worksheet_Passports );
 
 
-  this.testFunc = () => {
-    // console.log(this.jsonSheet_Passports)
-  }
+  this.testFunc = () => {  }
 
   this.findInstrument = function (propName) {
     for (item of this.jsonSheet_Instruments) {
@@ -57,11 +55,25 @@ function TableInfo() {
 
   this.getItem = (jsonSheet, colName="")=> jsonSheet.map((item) => `${item[colName]}`);
 
-  this.ItemsInfoStr = (jsonSheet,colName,colNameEng,colNameUa, icon) => {
+  this.getItemNum = (jsonSheet, colName)=>jsonSheet.map(item=>`${item[colName]}`)
+
+  this.itemsInfoStr = (jsonSheet, colName, colCount, icon) => {
     let arr = [];
     let itemsName = this.getItem(jsonSheet, colName)
-    let itemsRegEng = this.getItemNumReg(jsonSheet, colNameEng)
-    let itemsRegUa = this.getItemNumReg(jsonSheet, colNameUa)
+    let itemsCount = this.getItemNum(jsonSheet, colCount)    
+
+    for(let i = 0; i < itemsName.length; i++){
+      arr.push(`${icon}${itemsName[i]} — ${itemsCount[i]}\n`)
+    }
+
+    return `${arr}`.replace(/[,]/g, "");
+  }
+
+  this.itemsInfoStrReg = (jsonSheet,colName,colNameEng,colNameUa, icon) => {
+    let arr = [];
+    let itemsName = this.getItem(jsonSheet, colName)
+    let itemsRegEng = this.getItemNum(jsonSheet, colNameEng)
+    let itemsRegUa = this.getItemNum(jsonSheet, colNameUa)
 
     for(let i = 0; i < itemsName.length; i++){
       arr.push(`${icon}${itemsName[i]} — ${itemsRegEng[i]} / ${itemsRegUa[i]}\n`)
@@ -70,7 +82,13 @@ function TableInfo() {
     return `${arr}`.replace(/[,]/g, "");
   }
 
-  this.getItemNumReg = (jsonSheet, regName)=>jsonSheet.map(item=>`${item[regName]}`)
+  this.addToTable = (workSheet, jsonSheet)=>{
+
+    // ? this.setLastChangeDate(this.jsonSheet_Instruments) чомусь не працюе блять 
+
+    XLSX.utils.sheet_add_json(workSheet, jsonSheet );
+    XLSX.writeFile(this.workbook, "data/dataTable.xlsx");
+  }
 
   this.writeOff_Passport = (instrument, colName, region, count)=> {
     let name = instrument[colName]
@@ -81,68 +99,6 @@ function TableInfo() {
     
     a[region] = a[region] - count
     
-  }
-
-  this.getInstruments = () => this.jsonSheet_Instruments.map((item) => `${item["Инструменты"]}`);
-  this.getInstrumentsNumEN = () => this.jsonSheet_Instruments.map((item) => `${item["В наличии ENG"]}`);
-  this.getInstrumentsNumUA = () => this.jsonSheet_Instruments.map((item) => `${item["В наличии UA"]}`);
-  this.instrumentsInfoStr = function () {
-    let arr = [];
-    for (let i = 0; i < this.getInstruments().length; i++) {
-      arr.push(
-        `🪗 ${this.getInstruments()[i]} — ${this.getInstrumentsNumEN()[i]} / ${
-          this.getInstrumentsNumUA()[i]
-        } \n`
-      );
-    }
-
-    return `${arr}`.replace(/[,]/g, "");
-  };
-
-  this.getTubes = () => this.jsonSheet_Tubes.map((item) => `${item["Инструменты"]}`);
-  this.getTubesNum = () => this.jsonSheet_Tubes.map(item => `${item["Количество"]}`)
-  this.tubesInfoStr = () => {
-    let arr = [];
-
-    this.getTubes().forEach((item, idx) => {
-      arr.push(`🪗 ${item} — ${this.getTubesNum()[idx]}\n`)
-    })
-
-    return `${arr}`.replace(/[,]/g, "");
-  }
-
-
-  this.getChainTubes = () => this.jsonSheet_chainTubes.map((item) => `${item["Инструменты"]}`);
-  this.getChainTubesNum = () => this.jsonSheet_chainTubes.map(item => `${item["Количество"]}`)
-  this.ChainTubesInfoStr =  () => {
-    let arr = [];
-
-    this.getChainTubes().forEach((item, idx) => {
-      arr.push(`🎼 ${item} — ${this.getChainTubesNum()[idx]}\n`);
-    });
-
-    return `${arr}`.replace(/[,]/g, "");
-  };
-
-
-  this.getComponents = () => this.jsonSheet_Components.map((item) => `${item["Комплектация"]}`);
-  this.getComponentsNum = () => this.jsonSheet_Components.map((item) => `${item["Количество"]}`);
-  this.componentsInfoStr =  () => {
-    let arr = [];
-
-    this.getComponents().forEach((item, idx) => {
-      arr.push(`🎼 ${item} — ${this.getComponentsNum()[idx]}\n`);
-    });
-
-    return `${arr}`.replace(/[,]/g, "");
-  };
-
-  this.addToTable = (workSheet, jsonSheet)=>{
-
-    // ? this.setLastChangeDate(this.jsonSheet_Instruments) чомусь не працюе блять 
-
-    XLSX.utils.sheet_add_json(workSheet, jsonSheet );
-    XLSX.writeFile(this.workbook, "data/dataTable.xlsx");
   }
 
   this.writeOff_Materials = function (number, materials) {
