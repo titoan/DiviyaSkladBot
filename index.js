@@ -135,8 +135,12 @@ bot.hears("Трубки", ctx => {
 ${tableInfo.tubesInfoStr()}`, {reply_markup: tubesMenu})
 })
 
-bot.hears("Пасспорта", ctx => { 
-  ctx.reply(`Название - ENG/UA
+bot.hears("Паспорта", ctx => {
+
+  ctx.reply(`
+Паспорта
+
+Название - ENG/UA
 
 ${tableInfo.ItemsInfoStr(tableInfo.jsonSheet_Passports, "Паспорт", "ENG", "UA", "🧧")}`)
 })
@@ -214,6 +218,9 @@ bot.on("callback_query:data", async (ctx) => {
   // Окончательная запись в таблицу
   if (data === "write_to_table") {
     if (ctx.session.states.addInstrument) {
+
+      tableInfo.writeOff_Passport(ctx.session.instrument, "Инструменты", ctx.session.region, ctx.session.count)
+
       if (ctx.session.instrument["Инструменты"] == "Ether-Wood") {
         await tableInfo.writeOff_Materials(ctx.session.count, tableInfo.material_ether);
       } else if (ctx.session.instrument["Инструменты"] == "Ether-Acril") {
