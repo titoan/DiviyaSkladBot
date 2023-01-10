@@ -20,7 +20,7 @@ function TableInfo() {
 
 
   this.testFunc = () => {
-    console.log(this.jsonSheet_Passports)
+    // console.log(this.jsonSheet_Passports)
   }
 
   this.findInstrument = function (propName) {
@@ -60,8 +60,8 @@ function TableInfo() {
   this.ItemsInfoStr = (jsonSheet,colName,colNameEng,colNameUa, icon) => {
     let arr = [];
     let itemsName = this.getItem(jsonSheet, colName)
-    let itemsRegEng = this.getInstrumentsNumReg(jsonSheet, colNameEng)
-    let itemsRegUa = this.getInstrumentsNumReg(jsonSheet, colNameUa)
+    let itemsRegEng = this.getItemNumReg(jsonSheet, colNameEng)
+    let itemsRegUa = this.getItemNumReg(jsonSheet, colNameUa)
 
     for(let i = 0; i < itemsName.length; i++){
       arr.push(`${icon}${itemsName[i]} — ${itemsRegEng[i]} / ${itemsRegUa[i]}\n`)
@@ -70,7 +70,18 @@ function TableInfo() {
     return `${arr}`.replace(/[,]/g, "");
   }
 
-  this.getInstrumentsNumReg = (jsonSheet, regName)=>jsonSheet.map(item=>`${item[regName]}`)
+  this.getItemNumReg = (jsonSheet, regName)=>jsonSheet.map(item=>`${item[regName]}`)
+
+  this.writeOff_Passport = (instrument, colName, region, count)=> {
+    let name = instrument[colName]
+    if(name.match(/Ether/)){
+      name = "Ether";
+    }
+    let a = this.jsonSheet_Passports.find(item => item["Паспорт"].match(name))
+    
+    a[region] = a[region] - count   
+    
+  }
 
   this.getInstruments = () => this.jsonSheet_Instruments.map((item) => `${item["Инструменты"]}`);
   this.getInstrumentsNumEN = () => this.jsonSheet_Instruments.map((item) => `${item["В наличии ENG"]}`);
