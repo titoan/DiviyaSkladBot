@@ -79,7 +79,7 @@ function TableInfo() {
     }
     let a = this.jsonSheet_Passports.find(item => item["Паспорт"].match(name))
     
-    a[region] = a[region] - count   
+    a[region] = a[region] - count
     
   }
 
