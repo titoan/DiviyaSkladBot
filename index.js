@@ -88,8 +88,6 @@ bot.hears("Склад инструментов", (ctx) => {
     `Вы на складе инструментов
 Здесь светло и просторно. Вдоль стен рядами стоят стелажи. На полках разложены запакованные инструменты. 
 
-
-
 Всего доступно инструментов:
 Название - ENG/UA
 ——————————
@@ -104,8 +102,6 @@ bot.hears("Склад материалов", (ctx) => {
   ctx.reply(
     `Вы на складе материалов
 Здесь светло и просторно. Вдоль стен рядами стоят стелажи. На полках разложены готовые к использованию материалы. 
-
-
 
 Всего доступно материалов:
 ——————————
@@ -124,8 +120,6 @@ bot.hears("Таблица", (ctx) => {
 bot.hears("Частично готово", ctx => {
   ctx.reply(`Ввиду непредвиденных обстоятельств на складе имеются недоукомплектованные инструменты
 
-
-
 ${tableInfo.itemsInfoStr(tableInfo.jsonSheet_chainTubes, "Инструменты", "Количество", "🎼")}`, {reply_markup: chainTubesMenu})
 })
 
@@ -142,7 +136,7 @@ bot.hears("Паспорта", ctx => {
 
 Название - ENG/UA
 
-${tableInfo.itemsInfoStrReg(tableInfo.jsonSheet_Passports, "Паспорт", "ENG", "UA", "🧧")}`)
+${tableInfo.itemsInfoStrReg(tableInfo.jsonSheet_Passports, "Паспорт", "В наличии ENG", "В наличии UA", "🧧")}`)
 })
 
 bot.on("callback_query:data", async (ctx) => {
@@ -229,7 +223,7 @@ bot.on("callback_query:data", async (ctx) => {
         await tableInfo.writeOff_Materials(ctx.session.count, tableInfo.material_standart, ctx.session.region);
       }
 
-      await tableInfo.addToTable(tableInfo.worksheet_Components, tableInfo.jsonSheet_Components)
+      await tableInfo.addToTable(tableInfo.worksheet_Components, tableInfo.jsonSheet_Components)      
       await tableInfo.addToTable(tableInfo.worksheet_Instruments, tableInfo.jsonSheet_Instruments)
       await tableInfo.addToTable(tableInfo.worksheet_Passports, tableInfo.jsonSheet_Passports)
 

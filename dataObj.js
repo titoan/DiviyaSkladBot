@@ -84,20 +84,22 @@ function TableInfo() {
 
   this.addToTable = (workSheet, jsonSheet)=>{
 
-    // ? this.setLastChangeDate(this.jsonSheet_Instruments) чомусь не працюе блять 
+    // this.setLastChangeDate(this.jsonSheet_Instruments)
 
     XLSX.utils.sheet_add_json(workSheet, jsonSheet );
     XLSX.writeFile(this.workbook, "data/dataTable.xlsx");
   }
 
   this.writeOff_Passport = (instrument, colName, region, count)=> {
-    let name = instrument[colName]
+    
+    let name = instrument[colName].toLowerCase()
     if(name.match(/Ether/)){
       name = "Ether";
     }
-    let a = this.jsonSheet_Passports.find(item => item["Паспорт"].match(name))
     
-    a[region] = a[region] - count
+    let a = this.jsonSheet_Passports.find(item => item["Паспорт"].toLowerCase().match(name))
+    
+    a[`В наличии ${region}`] = a[`В наличии ${region}`] - count
     
   }
 
@@ -110,19 +112,16 @@ function TableInfo() {
   };
 
   this.setLastChangeDate = (jsonSheet) => {
-    dateFild = jsonSheet.find(item => item['Дата'])
+    dateFild = jsonSheet.find(item => item['Date'])
     curDate = `${new Date().getDate()}.${new Date().getMonth() + 1}.${new Date().getFullYear()} ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}`
-    dateFild = curDate
+    dateFild['Date'] = curDate
   }
 
   this.getLastChangeDate = (jsonSheet) => {
-    
-    // console.log(jsonSheet.find(item => item['Дата']))
-    for(let i = 0; i < jsonSheet.length; i++){
-      console.log(jsonSheet[i]['Дата'])
-    }
     try{
-      return `${jsonSheet.find(item =>item['Дата'])['Дата']}`
+      let lastDate = jsonSheet.find(item =>item['Date']);
+      console.log(lastDate["Date"])
+      return `${lastDate["Date"]}`
     }catch(err){
       if (err) throw err
     }
