@@ -97,9 +97,9 @@ function TableInfo() {
       name = "Ether";
     }
     
-    let a = this.jsonSheet_Passports.find(item => item["Паспорт"].toLowerCase().match(name))
+    let passport = this.jsonSheet_Passports.find(item => item["Паспорт"].toLowerCase().match(name))
     
-    a[`В наличии ${region}`] = a[`В наличии ${region}`] - count
+    passport[`В наличии ${region}`] = a[`В наличии ${region}`] - count
     
   }
 
@@ -110,6 +110,10 @@ function TableInfo() {
       findMaterial[0]["Количество"] = findMaterial[0]["Количество"] - materials[key] * number
     }    
   };
+
+  this.writeOfTubes = () => {
+
+  }
 
   this.setLastChangeDate = (jsonSheet) => {
     dateFild = jsonSheet.find(item => item['Date'])
