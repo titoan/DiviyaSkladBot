@@ -48,7 +48,7 @@ const addMaterialMenu = new Menu("dynamic_1")
 
 const addTubes = new Menu("dynamic_2")
 .dynamic((ctx, range) => {
-  for(const tube of ctx.table.tableObj.getTubes()){
+  for(const tube of ctx.table.tableObj.getItem(ctx.table.tableObj.jsonSheet_Tubes, "Инструменты")){
     range
     .text(tube, ctx => {
       ctx.session.instrument = ctx.table.tableObj.findTubes(tube);
