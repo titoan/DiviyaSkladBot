@@ -211,9 +211,7 @@ bot.on("callback_query:data", async (ctx) => {
 
   // Окончательная запись в таблицу
   if (data === "write_to_table") {
-    if (ctx.session.states.addInstrument) {
-      await tableInfo.writeOfTubes(ctx.session.instrument, "Инструменты", ctx.session.count)
-      await tableInfo.writeOff_Passport(ctx.session.instrument, "Инструменты", ctx.session.region, ctx.session.count)
+    if (ctx.session.states.addInstrument) {     
 
       if (ctx.session.instrument["Инструменты"] == "Ether-Wood") {
         await tableInfo.writeOff_Materials(ctx.session.count, tableInfo.material_ether);
@@ -223,9 +221,13 @@ bot.on("callback_query:data", async (ctx) => {
         await tableInfo.writeOff_Materials(ctx.session.count, tableInfo.material_standart, ctx.session.region);
       }
 
+      await tableInfo.writeOfTubes(ctx.session.instrument, "Инструменты", ctx.session.count)      
+      await tableInfo.writeOff_Passport(ctx.session.instrument, "Инструменты", ctx.session.region, ctx.session.count)
+
       await tableInfo.addToTable(tableInfo.worksheet_Components, tableInfo.jsonSheet_Components)      
       await tableInfo.addToTable(tableInfo.worksheet_Instruments, tableInfo.jsonSheet_Instruments)
       await tableInfo.addToTable(tableInfo.worksheet_Passports, tableInfo.jsonSheet_Passports)
+      await tableInfo.addToTable(tableInfo.worksheet_Tubes, tableInfo.jsonSheet_Tubes)
 
       ctx.session.states.addInstrument = false;
 

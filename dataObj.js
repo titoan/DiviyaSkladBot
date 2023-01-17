@@ -97,9 +97,9 @@ function TableInfo() {
     if(name.match(/ether/)){
       name = "ether";
     }
-    console.log(name)
+    
     let passport = this.jsonSheet_Passports.find(item => item["Паспорт"].toLowerCase().match(name))
-    console.log(passport)
+    
     passport[`В наличии ${region}`] = passport[`В наличии ${region}`] - count
     
   }
@@ -114,8 +114,11 @@ function TableInfo() {
 
   this.writeOfTubes = (instrument, colName, count) => {
     let name = instrument[colName].toLowerCase()
-    let tubes = this.jsonSheet_Tubes.find(item => item["Инструменты"].toLowerCase().match(name))
-    // console.log(tubes)
+    if(name.match(/ether/)){
+      name = "ether";
+    }
+    let tubes = this.jsonSheet_Tubes.find(item => item[colName].toLowerCase().match(name))
+    tubes['Количество'] = tubes['Количество'] - count
   }
 
   this.setLastChangeDate = (jsonSheet) => {
