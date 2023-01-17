@@ -93,13 +93,14 @@ function TableInfo() {
   this.writeOff_Passport = (instrument, colName, region, count)=> {
     
     let name = instrument[colName].toLowerCase()
-    if(name.match(/Ether/)){
-      name = "Ether";
+    
+    if(name.match(/ether/)){
+      name = "ether";
     }
-    
+    console.log(name)
     let passport = this.jsonSheet_Passports.find(item => item["Паспорт"].toLowerCase().match(name))
-    
-    passport[`В наличии ${region}`] = a[`В наличии ${region}`] - count
+    console.log(passport)
+    passport[`В наличии ${region}`] = passport[`В наличии ${region}`] - count
     
   }
 
@@ -111,8 +112,10 @@ function TableInfo() {
     }    
   };
 
-  this.writeOfTubes = () => {
-
+  this.writeOfTubes = (instrument, colName, count) => {
+    let name = instrument[colName].toLowerCase()
+    let tubes = this.jsonSheet_Tubes.find(item => item["Инструменты"].toLowerCase().match(name))
+    // console.log(tubes)
   }
 
   this.setLastChangeDate = (jsonSheet) => {

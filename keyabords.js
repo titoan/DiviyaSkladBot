@@ -92,8 +92,8 @@ const mainMenu = new Keyboard()
   .row()
   .text("Паспорта")
   .row()
-  .text("Частично готово")
-  .row()
+  // .text("Частично готово")
+  // .row()
   .text("Таблица")
   .resized();
 

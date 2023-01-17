@@ -70,7 +70,7 @@ bot.use(async (ctx, next) => {
 bot.use(session({initial}));
 bot.use(addInstrumentsMenu, addMaterialMenu, addTubes, addChainTubes)
 
-bot.command("start", async (ctx) => {
+bot.command("start", async (ctx) => {  
 tableInfo.testFunc()
   await ctx.reply(
     `Вы находитесь в мастерской. Вероятно, вы здесь не просто так и у вас на сегодняшний день запланирована масса разнообразнейших задач.
@@ -212,7 +212,7 @@ bot.on("callback_query:data", async (ctx) => {
   // Окончательная запись в таблицу
   if (data === "write_to_table") {
     if (ctx.session.states.addInstrument) {
-
+      await tableInfo.writeOfTubes(ctx.session.instrument, "Инструменты", ctx.session.count)
       await tableInfo.writeOff_Passport(ctx.session.instrument, "Инструменты", ctx.session.region, ctx.session.count)
 
       if (ctx.session.instrument["Инструменты"] == "Ether-Wood") {
