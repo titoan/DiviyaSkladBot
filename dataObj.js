@@ -84,7 +84,7 @@ function TableInfo() {
 
   this.addToTable = (workSheet, jsonSheet)=>{
 
-    // this.setLastChangeDate(this.jsonSheet_Instruments)
+    this.setLastChangeDate(jsonSheet)
 
     XLSX.utils.sheet_add_json(workSheet, jsonSheet );
     XLSX.writeFile(this.workbook, "data/dataTable.xlsx");
@@ -104,6 +104,16 @@ function TableInfo() {
     
   }
 
+  this.writeOfTubes = (instrument, colName, count) => {
+    let name = instrument[colName].toLowerCase()
+    
+    if(name.match(/ether/)){
+      name = "ether";
+    }
+    let tubes = this.jsonSheet_Tubes.find(item => item[colName].toLowerCase().match(name))
+    tubes['Количество'] = tubes['Количество'] - count
+  }
+
   this.writeOff_Materials = function (number, materials) {
 
     for(key in materials){
@@ -112,25 +122,16 @@ function TableInfo() {
     }    
   };
 
-  this.writeOfTubes = (instrument, colName, count) => {
-    let name = instrument[colName].toLowerCase()
-    if(name.match(/ether/)){
-      name = "ether";
-    }
-    let tubes = this.jsonSheet_Tubes.find(item => item[colName].toLowerCase().match(name))
-    tubes['Количество'] = tubes['Количество'] - count
-  }
-
-  this.setLastChangeDate = (jsonSheet) => {
-    dateFild = jsonSheet.find(item => item['Date'])
-    curDate = `${new Date().getDate()}.${new Date().getMonth() + 1}.${new Date().getFullYear()} ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}`
-    dateFild['Date'] = curDate
+  this.setLastChangeDate = (jsonSheet) => {    
+    dateFild = jsonSheet.find(item => item["Комплектация"] || item["Инструменты"] || item["Паспорт"]);
+    curDate = `${new Date().getDate()}.${new Date().getMonth() + 1 < 10 ? `0${new Date().getMonth() + 1}` : new Date().getMonth() + 1 }.${new Date().getFullYear()} ${new Date().getHours()<10?`0${new Date().getHours()}`:new Date().getHours()}:${new Date().getMinutes()<10? `0${new Date().getMinutes()}` : new Date().getMinutes()}`;
+    dateFild["Date"] = curDate;
   }
 
   this.getLastChangeDate = (jsonSheet) => {
     try{
-      let lastDate = jsonSheet.find(item =>item['Date']);
-      console.log(lastDate["Date"])
+      let lastDate = jsonSheet.find(item =>item["Комплектация"] || item["Инструменты"] || item["Паспорт"]);
+      
       return `${lastDate["Date"]}`
     }catch(err){
       if (err) throw err
