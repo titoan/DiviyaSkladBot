@@ -66,7 +66,7 @@ const addTubes = new Menu("dynamic_2")
 
 const addChainTubes = new Menu("dynamic_3")
 .dynamic((ctx, range) => {
-  for(const chainTube of ctx.table.tableObj.getChainTubes()){
+  for(const chainTube of ctx.table.tableObj.getItem(ctx.table.tableObj.jsonSheet_chainTubes, "Инструменты")){
     range
     .text(chainTube, ctx => {
       ctx.session.instrument = ctx.table.tableObj.findChainTubes(chainTube);
@@ -88,12 +88,12 @@ const mainMenu = new Keyboard()
   .row()
   .text("Склад инструментов")
   .row()
+  .text("Частично готово")
+  .row()
   .text("Трубки")
   .row()
   .text("Паспорта")
-  .row()
-  // .text("Частично готово")
-  // .row()
+  .row() 
   .text("Таблица")
   .resized();
 

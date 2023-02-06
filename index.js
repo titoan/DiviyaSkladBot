@@ -229,7 +229,8 @@ bot.on("callback_query:data", async (ctx) => {
         await tableInfo.writeOff_Materials(ctx.session.count, tableInfo.material_standart, ctx.session.region);
       }
 
-      await tableInfo.writeOfTubes(ctx.session.instrument, "Инструменты", ctx.session.count)      
+      // await tableInfo.writeOfTubes(ctx.session.instrument, "Инструменты", ctx.session.count)
+      tableInfo.writeOffItems(tableInfo.jsonSheet_chainTubes, ctx.session.instrument, "Инструменты", ctx.session.count)
       await tableInfo.writeOff_Passport(ctx.session.instrument, "Инструменты", ctx.session.region, ctx.session.count)
 
       await tableInfo.addToTable(tableInfo.worksheet_Components, tableInfo.jsonSheet_Components)      
@@ -299,8 +300,10 @@ bot.on("callback_query:data", async (ctx) => {
     }
 
     if(ctx.session.states.addChainTubes  || ctx.session.states.removeChainTubes){      
-      
+      tableInfo.writeOffItems(tableInfo.jsonSheet_Tubes, ctx.session.instrument, "Инструменты", ctx.session.count)
+
       tableInfo.addToTable(tableInfo.worksheet_chainTubes, tableInfo.jsonSheet_chainTubes)
+      tableInfo.addToTable(tableInfo.worksheet_Tubes, tableInfo.jsonSheet_Tubes)
 
       ctx.session.states.addTubes = false;
       ctx.session.states.removeTubes = false;
@@ -410,7 +413,7 @@ bot.hears(/[0-9]/, (ctx) => {
   }
   
   if(ctx.session.states.addChainTubes || ctx.session.states.removeChainTubes){
-
+    ctx.session.count = parseInt(ctx.message.text);
     let total = [ parseInt(ctx.session.instrument["Количество"]), parseInt(ctx.message.text)]
     .reduce((prev, curr) => ctx.session.states.addChainTubes ? prev + curr : prev - curr);
 
