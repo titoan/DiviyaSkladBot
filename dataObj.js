@@ -24,7 +24,9 @@ function TableInfo() {
   this.worksheet_Passports = this.workbook.Sheets.passports;
   this.jsonSheet_Passports = XLSX.utils.sheet_to_json(this.worksheet_Passports);
 
-  this.testFunc = () => {};
+  this.testFunc = () => {
+    console.log("test func");
+  };
 
   this.findInstrument = function (propName) {
     for (item of this.jsonSheet_Instruments) {
@@ -140,8 +142,7 @@ function TableInfo() {
       let findMaterial = this.jsonSheet_Components.filter(
         (item) => item["Комплектация"] == key
       );
-      findMaterial[0]["Количество"] =
-        findMaterial[0]["Количество"] - materials[key] * number;
+      findMaterial[0]["Количество"] = findMaterial[0]["Количество"] - materials[key] * number;
     }
   };
 
@@ -183,11 +184,11 @@ function TableInfo() {
     "Паракорд бордо 48 см": 1,
     "Планки дерево Б": 1,
     "Планки дерево М": 1,
-    Стики: 1,
+    "Стики дерево": 1,
     "Шнур с карабином": 1,
-    Стикеры: 1,
+    "Стикеры": 1,
     "Флизелин стандарт": 1,
-    Подставки: 1,
+    "Подставки": 1,
     "Bag стандарт": 1,
   };
 
@@ -197,11 +198,11 @@ function TableInfo() {
     "Паракорд бордо 48 см": 1,
     "Планки дерево Б": 1,
     "Планки дерево М": 1,
-    Стики: 1,
+    "Стики дерево": 1,
     "Шнур с карабином": 1,
-    Стикеры: 1,
+    "Стикеры": 1,
     "Флизелин стандарт": 1,
-    Подставки: 1,
+    "Подставки": 1,
     "Bag эфир": 1,
   };
 
@@ -211,9 +212,9 @@ function TableInfo() {
     "Паракорд серый 48 см": 1,
     "Планки акрил Б": 1,
     "Планки акрил М": 1,
-    Стики: 1,
+    "Стики акрил": 1,
     "Шнур с карабином": 1,
-    Стикеры: 1,
+    "Стикеры": 1,
     "Флизелин стандарт": 1,
     "Подставки акрил": 1,
     "Bag эфир": 1,

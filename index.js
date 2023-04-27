@@ -1,8 +1,4 @@
-const {
-  Bot,
-  session,
-  InputFile
-} = require("grammy");
+const {  Bot,  session,  InputFile} = require("grammy");
 require("dotenv").config();
 const {
   mainMenu,
@@ -17,21 +13,17 @@ const {
   chainTubesMenu,
   addChainTubes
 } = require("./keyabords");
-const {
-  TableInfo
-} = require("./dataObj");
-const {
-  stateToggle
-} = require("./functions");
-const {
-  hydrateFiles
-} = require("@grammyjs/files");
+const {TableInfo} = require("./dataObj");
+const {stateToggle} = require("./functions");
+const {hydrateFiles} = require("@grammyjs/files");
+const {SkladDataBase, createDB, createComponentsDB} = require("./db_src/db-req");
 
 const token = process.env.BOT_TOKEN;
 const bot = new Bot(token);
 bot.api.config.use(hydrateFiles(token));
 
 let tableInfo = new TableInfo();
+let skladData = new SkladDataBase();
 
 function initial() {
   return {
@@ -51,6 +43,7 @@ function initial() {
       getTable: false,
     },
     count: 0,
+    tota: 0,
     instrument: {},
     material: {},
     region: "",
@@ -71,7 +64,11 @@ bot.use(session({initial}));
 bot.use(addInstrumentsMenu, addMaterialMenu, addTubes, addChainTubes)
 
 bot.command("start", async (ctx) => {  
-tableInfo.testFunc()
+  // createDB()
+  // skladData.createDB()
+  // skladData.selectInstrument()
+  // createComponentsDB()
+
   await ctx.reply(
     `Вы находитесь в мастерской. Вероятно, вы здесь не просто так и у вас на сегодняшний день запланирована масса разнообразнейших задач.
 
@@ -83,7 +80,7 @@ tableInfo.testFunc()
   );
 });
 
-bot.hears("Склад инструментов", (ctx) => {
+bot.hears("Склад инструментов", async (ctx) => {
   ctx.reply(
     `Вы на складе инструментов
 Здесь светло и просторно. Вдоль стен рядами стоят стелажи. На полках разложены запакованные инструменты. 
@@ -93,8 +90,9 @@ ${tableInfo.getLastChangeDate(tableInfo.jsonSheet_Instruments)}
 Всего доступно инструментов:
 Название - ENG/UA
 ——————————
-${tableInfo.itemsInfoStrReg(tableInfo.jsonSheet_Instruments, "Инструменты", "В наличии ENG", "В наличии UA", "🪗")}
-    `, {
+
+${await skladData.printIstrument()}
+${tableInfo.itemsInfoStrReg(tableInfo.jsonSheet_Instruments, "Инструменты", "В наличии ENG", "В наличии UA", "🪗")}`, {
       reply_markup: instrumentsMenu,
     }
   );
@@ -150,7 +148,7 @@ ${tableInfo.itemsInfoStrReg(tableInfo.jsonSheet_Passports, "Паспорт", "В
 bot.on("callback_query:data", async (ctx) => {
   data = ctx.callbackQuery.data;
 
-  // Условия добавления на склад инстурментов
+  // ? Условия добавления на склад инстурментов
   if (data === "add_instrument" || data === "remove_instrument") {
 
     stateToggle(ctx, data);
@@ -230,11 +228,14 @@ bot.on("callback_query:data", async (ctx) => {
       }
 
       // await tableInfo.writeOfTubes(ctx.session.instrument, "Инструменты", ctx.session.count)
+      // ! Эта строка записывает в БД количество инструментов на складе
+      skladData.updateAvailability(ctx.session.region, ctx.session.instrument['Инструменты'], ctx.session.total)
+
       tableInfo.writeOffItems(tableInfo.jsonSheet_chainTubes, ctx.session.instrument, "Инструменты", ctx.session.count)
-      await tableInfo.writeOff_Passport(ctx.session.instrument, "Инструменты", ctx.session.region, ctx.session.count)
+      // await tableInfo.writeOff_Passport(ctx.session.instrument, "Инструменты", ctx.session.region, ctx.session.count)
 
       await tableInfo.addToTable(tableInfo.worksheet_Components, tableInfo.jsonSheet_Components)      
-      await tableInfo.addToTable(tableInfo.worksheet_Instruments, tableInfo.jsonSheet_Instruments)
+      // await tableInfo.addToTable(tableInfo.worksheet_Instruments, tableInfo.jsonSheet_Instruments)
       await tableInfo.addToTable(tableInfo.worksheet_Passports, tableInfo.jsonSheet_Passports)
       await tableInfo.addToTable(tableInfo.worksheet_Tubes, tableInfo.jsonSheet_Tubes)
 
@@ -282,7 +283,7 @@ bot.on("callback_query:data", async (ctx) => {
       );
     }
     
-    if(ctx.session.states.addTubes || ctx.session.states.removeTubes){      
+    if(ctx.session.states.addTubes || ctx.session.states.removeTubes){
 
       tableInfo.addToTable(tableInfo.worksheet_Tubes, tableInfo.jsonSheet_Tubes)
 
@@ -350,14 +351,25 @@ bot.on("msg:file", async ctx => {
   ctx.session.table.uploadTable = false;
 })
 
-bot.hears(/[0-9]/, (ctx) => {
+bot.hears(/[0-9]/, async (ctx) => {
   if (ctx.session.states.addInstrument) {
     let region = `В наличии ${ctx.session.region}`;
     ctx.session.count = parseInt(ctx.message.text);
 
-    let total = [ parseInt(ctx.session.instrument[region]), parseInt(ctx.message.text) ].reduce((prev, curr) => prev + curr);
+    // skladData.updateAvailability(ctx.session.region, ctx.session.instrument['Инструменты'], ctx.session.count)
 
-    ctx.session.instrument[`В наличии ${ctx.session.region}`] = total;
+    // ! -------------- База Данных! -------------------------------
+    let userAddCount = ctx.session.count;
+    let currTableCount = await skladData.printValue(ctx.session.instrument['Инструменты'], `available_${ctx.session.region}`);
+    ctx.session.total = userAddCount + currTableCount;
+
+    console.log(ctx.session.total)
+
+     // ! -------------- База Данных! -------------------------------
+
+    // let total = [ parseInt(ctx.session.instrument[region]), parseInt(ctx.message.text) ].reduce((prev, curr) => prev + curr);
+
+    // ctx.session.instrument[`В наличии ${ctx.session.region}`] = total;
 
     ctx.reply(
       `На склад было добавлено ${ctx.message.text} инструментов ${ctx.session.instrument["Инструменты"]}`, {
