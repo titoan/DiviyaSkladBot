@@ -91,8 +91,7 @@ ${tableInfo.getLastChangeDate(tableInfo.jsonSheet_Instruments)}
 Название - ENG/UA
 ——————————
 
-${await skladData.printIstrument()}
-${tableInfo.itemsInfoStrReg(tableInfo.jsonSheet_Instruments, "Инструменты", "В наличии ENG", "В наличии UA", "🪗")}`, {
+${await skladData.printIstrument()}`, {
       reply_markup: instrumentsMenu,
     }
   );

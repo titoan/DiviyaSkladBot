@@ -68,10 +68,8 @@ class SkladDataBase{
   async printIstrument(){
     try {
       await this.selectInstrument();
-      // let arrStr = [];
-      // this.instruments.forEach(row => arrStr.push(`${row.tool_name} — ${row.available_ENG} / ${row.available_UA}\n`));
       let arrStr = this.instruments.map(row => `${row.tool_name} — ${row.available_ENG} / ${row.available_UA}\n`);
-      console.log(arrStr)
+      
       return `${arrStr}`.replace(/[,]/g, "");
     } catch (err) {
       console.error(err.message);
