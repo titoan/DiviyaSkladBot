@@ -17,5 +17,5 @@ function stateToggle(ctx, data) {
 }
 
 module.exports = {
-  stateToggle,
+    stateToggle,
 };

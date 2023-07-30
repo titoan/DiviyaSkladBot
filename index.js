@@ -88,8 +88,6 @@ bot.hears("Склад инструментов", (ctx) => {
     `Вы на складе инструментов
 Здесь светло и просторно. Вдоль стен рядами стоят стелажи. На полках разложены запакованные инструменты. 
 
-${tableInfo.getLastChangeDate(tableInfo.jsonSheet_Instruments)}
-
 Всего доступно инструментов:
 Название - ENG/UA
 ——————————
@@ -104,8 +102,6 @@ bot.hears("Склад материалов", (ctx) => {
   ctx.reply(
     `Вы на складе материалов
 Здесь светло и просторно. Вдоль стен рядами стоят стелажи. На полках разложены готовые к использованию материалы. 
-
-${tableInfo.getLastChangeDate(tableInfo.jsonSheet_Components)}
 
 Всего доступно материалов:
 ——————————
@@ -129,8 +125,6 @@ ${tableInfo.itemsInfoStr(tableInfo.jsonSheet_chainTubes, "Инструменты
 
 bot.hears("Трубки", ctx => {
   ctx.reply(`Эти трубки ничем не связаны. Но у вас перед ними, явно, есть некоторые обязательства.  
-
-  ${tableInfo.getLastChangeDate(tableInfo.jsonSheet_Tubes)}
   
 ${tableInfo.itemsInfoStr(tableInfo.jsonSheet_Tubes, "Инструменты", "Количество", "🪗")}`, {reply_markup: tubesMenu})
 })
@@ -139,8 +133,6 @@ bot.hears("Паспорта", ctx => {
 
   ctx.reply(`
 Паспорта
-
-${tableInfo.getLastChangeDate(tableInfo.jsonSheet_Passports)}
 
 Название - ENG/UA
 
@@ -220,8 +212,8 @@ bot.on("callback_query:data", async (ctx) => {
   // Окончательная запись в таблицу
   if (data === "write_to_table") {
     if (ctx.session.states.addInstrument) {     
-
-      if (ctx.session.instrument["Инструменты"] == "Ether-Wood") {
+// ! Запусить и проверить че как отрабатывает
+      if (ctx.session.instrument["Инструменты"] == "Ether-Wood"  ||  "Golden-Gate" || "Aerial") {
         await tableInfo.writeOff_Materials(ctx.session.count, tableInfo.material_ether);
       } else if (ctx.session.instrument["Инструменты"] == "Ether-Acril") {
         await tableInfo.writeOff_Materials( ctx.session.count, tableInfo.material_ether_acril );
@@ -229,14 +221,14 @@ bot.on("callback_query:data", async (ctx) => {
         await tableInfo.writeOff_Materials(ctx.session.count, tableInfo.material_standart, ctx.session.region);
       }
 
-      // await tableInfo.writeOfTubes(ctx.session.instrument, "Инструменты", ctx.session.count)
+      tableInfo.writeOfTubes(ctx.session.instrument, "Инструменты", ctx.session.count)
       tableInfo.writeOffItems(tableInfo.jsonSheet_chainTubes, ctx.session.instrument, "Инструменты", ctx.session.count)
-      await tableInfo.writeOff_Passport(ctx.session.instrument, "Инструменты", ctx.session.region, ctx.session.count)
+      tableInfo.writeOff_Passport(ctx.session.instrument, "Инструменты", ctx.session.region, ctx.session.count)
 
-      await tableInfo.addToTable(tableInfo.worksheet_Components, tableInfo.jsonSheet_Components)      
-      await tableInfo.addToTable(tableInfo.worksheet_Instruments, tableInfo.jsonSheet_Instruments)
-      await tableInfo.addToTable(tableInfo.worksheet_Passports, tableInfo.jsonSheet_Passports)
-      await tableInfo.addToTable(tableInfo.worksheet_Tubes, tableInfo.jsonSheet_Tubes)
+      tableInfo.addToTable(tableInfo.worksheet_Components, tableInfo.jsonSheet_Components)      
+      tableInfo.addToTable(tableInfo.worksheet_Instruments, tableInfo.jsonSheet_Instruments)
+      tableInfo.addToTable(tableInfo.worksheet_Passports, tableInfo.jsonSheet_Passports)
+      tableInfo.addToTable(tableInfo.worksheet_Tubes, tableInfo.jsonSheet_Tubes)
 
       ctx.session.states.addInstrument = false;
 
