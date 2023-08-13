@@ -4,22 +4,16 @@ function TableInfo() {
   this.workbook = XLSX.readFile("data/dataTable.xlsx");
 
   this.worksheet_Instruments = this.workbook.Sheets.ready_to_sale;
-  this.jsonSheet_Instruments = XLSX.utils.sheet_to_json(
-    this.worksheet_Instruments
-  );
+  this.jsonSheet_Instruments = XLSX.utils.sheet_to_json( this.worksheet_Instruments );
 
   this.worksheet_Components = this.workbook.Sheets.components;
-  this.jsonSheet_Components = XLSX.utils.sheet_to_json(
-    this.worksheet_Components
-  );
+  this.jsonSheet_Components = XLSX.utils.sheet_to_json( this.worksheet_Components );
 
   this.worksheet_Tubes = this.workbook.Sheets.tubes;
   this.jsonSheet_Tubes = XLSX.utils.sheet_to_json(this.worksheet_Tubes);
 
   this.worksheet_chainTubes = this.workbook.Sheets.chain_tubes;
-  this.jsonSheet_chainTubes = XLSX.utils.sheet_to_json(
-    this.worksheet_chainTubes
-  );
+  this.jsonSheet_chainTubes = XLSX.utils.sheet_to_json( this.worksheet_chainTubes );
 
   this.worksheet_Passports = this.workbook.Sheets.passports;
   this.jsonSheet_Passports = XLSX.utils.sheet_to_json(this.worksheet_Passports);
@@ -135,13 +129,11 @@ function TableInfo() {
     tubes["Количество"] = tubes["Количество"] - count;
   };
 
-  this.writeOff_Materials = function (number, materials) {
+  this.writeOff_Materials = async function (number, materials) {
     for (key in materials) {
-      let findMaterial = this.jsonSheet_Components.filter(
-        (item) => item["Комплектация"] == key
-      );
-      findMaterial[0]["Количество"] =
-        findMaterial[0]["Количество"] - materials[key] * number;
+      let [findMaterial] = this.jsonSheet_Components.filter((item) => item["Комплектация"] == key);
+      console.log(findMaterial)
+      findMaterial["Количество"] = findMaterial["Количество"] - materials[key] * number;
     }
   };
 
@@ -183,11 +175,11 @@ function TableInfo() {
     "Паракорд бордо 48 см": 1,
     "Планки дерево Б": 1,
     "Планки дерево М": 1,
-    "Стики": 1,
+    "Стики дерево": 1,
     "Шнур с карабином": 1,
     "Стикеры": 1,
     "Флизелин стандарт": 1,
-    "Подставки": 1,
+    "Подставки дерево": 1,
     "Bag стандарт": 1,
   };
 
@@ -197,11 +189,11 @@ function TableInfo() {
     "Паракорд бордо 48 см": 1,
     "Планки дерево Б": 1,
     "Планки дерево М": 1,
-    "Стики": 1,
+    "Стики дерево": 1,
     "Шнур с карабином": 1,
     "Стикеры": 1,
     "Флизелин Ефир": 1,
-    "Подставки": 1,
+    "Подставки дерево": 1,
     "Bag эфир": 1,
   };
 
@@ -211,7 +203,7 @@ function TableInfo() {
     "Паракорд серый 48 см": 1,
     "Планки акрил Б": 1,
     "Планки акрил М": 1,
-    "Стики": 1,
+    "Стики акрил": 1,
     "Шнур с карабином": 1,
     "Стикеры": 1,
     "Флизелин Ефир": 1,

@@ -213,15 +213,26 @@ bot.on("callback_query:data", async (ctx) => {
   if (data === "write_to_table") {
     if (ctx.session.states.addInstrument) {     
 // ! Запусить и проверить че как отрабатывает
-      if (ctx.session.instrument["Инструменты"] == "Ether-Wood"  ||  "Golden-Gate" || "Aerial") {
-        await tableInfo.writeOff_Materials(ctx.session.count, tableInfo.material_ether);
+      if (["Ether-Wood", "Golden-Gate", "Aerial"].includes(ctx.session.instrument["Инструменты"])) {
+        try{
+          console.log(ctx.session.count)
+          await tableInfo.writeOff_Materials(ctx.session.count, tableInfo.material_ether);
+        }catch(err){
+          console.log(err)
+        }
       } else if (ctx.session.instrument["Инструменты"] == "Ether-Acril") {
-        await tableInfo.writeOff_Materials( ctx.session.count, tableInfo.material_ether_acril );
+        try{
+          await tableInfo.writeOff_Materials( ctx.session.count, tableInfo.material_ether_acril );
+        }catch(err){console.log(err)}
       } else {
-        await tableInfo.writeOff_Materials(ctx.session.count, tableInfo.material_standart, ctx.session.region);
+        try{
+          await tableInfo.writeOff_Materials(ctx.session.count, tableInfo.material_standart, ctx.session.region);
+        }catch(err){
+          console.log(err)
+        }
       }
 
-      tableInfo.writeOfTubes(ctx.session.instrument, "Инструменты", ctx.session.count)
+      // tableInfo.writeOfTubes(ctx.session.instrument, "Инструменты", ctx.session.count)
       tableInfo.writeOffItems(tableInfo.jsonSheet_chainTubes, ctx.session.instrument, "Инструменты", ctx.session.count)
       tableInfo.writeOff_Passport(ctx.session.instrument, "Инструменты", ctx.session.region, ctx.session.count)
 
