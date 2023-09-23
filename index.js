@@ -15,7 +15,8 @@ const {
   tubesMenu,
   addTubes,
   chainTubesMenu,
-  addChainTubes
+  addChainTubes,
+  passportMenu
 } = require("./keyabords");
 const {
   TableInfo
@@ -44,7 +45,9 @@ function initial() {
       addTubes: false,
       removeTubes:false,
       addChainTubes: false,
-      removeChainTubes:false
+      removeChainTubes:false,
+      removePasspor: false,
+      addPassport: false
     },
     table: {
       uploadTable: false,
@@ -136,7 +139,7 @@ bot.hears("Паспорта", ctx => {
 
 Название - ENG/UA
 
-${tableInfo.itemsInfoStrReg(tableInfo.jsonSheet_Passports, "Паспорт", "В наличии ENG", "В наличии UA", "🧧")}`)
+${tableInfo.itemsInfoStrReg(tableInfo.jsonSheet_Passports, "Паспорт", "В наличии ENG", "В наличии UA", "🧧")}`, {reply_markup: passportMenu}) 
 })
 
 bot.on("callback_query:data", async (ctx) => {
@@ -168,11 +171,17 @@ bot.on("callback_query:data", async (ctx) => {
       reply_markup: addTubes,
     });
   }else if(data === "add_chainTubes" || data === "remove_chainTubes"){
-    stateToggle(ctx, data);    
+    stateToggle(ctx, data);
     ctx.reply(`🪗 Какой строй желаете ${data === "add_chainTubes" ? "добавить на склад" : "изъять со склада"}? 🪗`, {
       reply_markup: addChainTubes,
     });
 
+  }else if(data === "add_passport" || data === "remove_passpor"){ 
+    // ! ты остановился зедесь сюда смотри
+    stateToggle(ctx, data);
+    ctx.reply(`🪗 Какой пасспорт желаете ${data === "add_passport" ? "добавить на склад" : "удалить со склада"}? 🪗`, {
+      reply_markup: addPassport,
+    });
   }
 
   //? Проверка на выполнения условия для добавления инструмента; Поиск выбранного инструмента; Выбор региона к которому относится инструмент

@@ -83,6 +83,26 @@ const addChainTubes = new Menu("dynamic_3")
 
 })
 
+// ! Ты остановился здесь сюда смотри 
+const addPassport = new Menu("dynamic_4")
+.dynamic((ctx, range) => {
+  for(const chainTube of ctx.table.tableObj.getItem(ctx.table.tableObj.jsonSheet_chainTubes, "Инструменты")){
+    range
+    .text(chainTube, ctx => {
+      ctx.session.instrument = ctx.table.tableObj.findChainTubes(chainTube);
+
+      ctx.reply(`
+Вы выбрали <b>${ctx.session.instrument["Инструменты"]}</b>
+
+Сейчас на складе находится ${ctx.session.instrument["Количество"]} связанных трубок
+
+Какое количество связанных трубок желаете ${ctx.session.states.addChainTubes ? "добавить" : "изъять"}?`,{ parse_mode: "HTML" })
+    })
+    .row()
+  }
+
+})
+
 const mainMenu = new Keyboard()
   .text("Склад материалов")
   .row()
@@ -115,6 +135,11 @@ const materialMenu = new InlineKeyboard()
   .text("Добавить материал на склад", "add_material")
   .text("Изъять материал cо склада", "remove_material");
 
+  const passportMenu = new InlineKeyboard()
+  .text("Добавить пасспорт", "add_passport")
+  .text("Удалить паспорт", "remove_passport");
+
+
 const tableMenu = new InlineKeyboard()
   .text("Получить таблицу", "get_table")
   .row()
@@ -139,5 +164,6 @@ module.exports = {
   tubesMenu,
   addTubes,
   chainTubesMenu,
-  addChainTubes
+  addChainTubes,
+  passportMenu
 }
