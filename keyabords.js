@@ -86,17 +86,23 @@ const addChainTubes = new Menu("dynamic_3")
 // ! Ты остановился здесь сюда смотри 
 const addPassport = new Menu("dynamic_4")
 .dynamic((ctx, range) => {
-  for(const chainTube of ctx.table.tableObj.getItem(ctx.table.tableObj.jsonSheet_chainTubes, "Инструменты")){
+  for(const chainTube of ctx.table.tableObj.getItem(ctx.table.tableObj.jsonSheet_Passports, "Паспорт")){
     range
     .text(chainTube, ctx => {
-      ctx.session.instrument = ctx.table.tableObj.findChainTubes(chainTube);
+      ctx.session.instrument = ctx.table.tableObj.findItems(ctx.table.tableObj.jsonSheet_Passports, chainTube, "Паспорт");
 
-      ctx.reply(`
-Вы выбрали <b>${ctx.session.instrument["Инструменты"]}</b>
+      ctx.reply(
+        `Вы выбрали <b>${ctx.session.instrument["Паспорт"]}</b>
+Сейчас на складе находится 
+ENG: <b>${ctx.session.instrument["В наличии ENG"]}</b> единиц
+UA: <b>${ctx.session.instrument["В наличии UA"]}</b> единиц
 
-Сейчас на складе находится ${ctx.session.instrument["Количество"]} связанных трубок
-
-Какое количество связанных трубок желаете ${ctx.session.states.addChainTubes ? "добавить" : "изъять"}?`,{ parse_mode: "HTML" })
+К какому региону отностися паспорт?`,
+        {
+          reply_markup: chooseRegion,
+          parse_mode: "HTML",
+        }
+      )
     })
     .row()
   }
@@ -136,7 +142,7 @@ const materialMenu = new InlineKeyboard()
   .text("Изъять материал cо склада", "remove_material");
 
   const passportMenu = new InlineKeyboard()
-  .text("Добавить пасспорт", "add_passport")
+  .text("Добавить паспорт", "add_passport")
   .text("Удалить паспорт", "remove_passport");
 
 
@@ -147,10 +153,7 @@ const tableMenu = new InlineKeyboard()
 
 const chooseRegion = new InlineKeyboard().text("ENG", "ENG").text("UA", "UA");
 
-const writeTable = new InlineKeyboard().text(
-  "Записать данные в таблицу",
-  "write_to_table"
-);
+const writeTable = new InlineKeyboard().text( "Записать данные в таблицу",  "write_to_table");
 
 module.exports = {
   mainMenu,
@@ -165,5 +168,6 @@ module.exports = {
   addTubes,
   chainTubesMenu,
   addChainTubes,
-  passportMenu
+  passportMenu,
+  addPassport
 }

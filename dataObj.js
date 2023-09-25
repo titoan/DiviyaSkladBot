@@ -52,6 +52,15 @@ function TableInfo() {
     }
   };
 
+  // ! Должен заменить собой все методы выше !!!!
+  this.findItems = function(sheetName, propName, colName){    
+    for (item of sheetName) {
+      if (item[colName] == propName) {
+        return item;
+      }
+    }
+  }
+
   this.getItem = (jsonSheet, colName = "") =>
     jsonSheet.map((item) => `${item[colName]}`);
 
