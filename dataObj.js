@@ -18,6 +18,9 @@ function TableInfo() {
   this.worksheet_Passports = this.workbook.Sheets.passports;
   this.jsonSheet_Passports = XLSX.utils.sheet_to_json(this.worksheet_Passports);
 
+  this.worksheet_salesBot = this.workbook.Sheets.sales_bot;
+  this.jsonSheet_salesBot = XLSX.utils.sheet_to_json(this.worksheet_salesBot);
+
   this.testFunc = () => {};
 
   this.findInstrument = function (propName) {
@@ -101,6 +104,25 @@ function TableInfo() {
     XLSX.writeFile(this.workbook, "data/dataTable.xlsx");
   };
 
+  this.writeSale = (obj) => {
+    
+    const date = new Date();
+		const curDate = `${date.getDate()}.${ date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1}.${date.getFullYear()} ${
+		date.getHours() < 10 ? `0${date.getHours()}` : date.getHours()}:${date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes()}`;
+
+    obj["Дата"] = curDate;
+    this.jsonSheet_salesBot.push(obj)
+    
+    console.log(this.jsonSheet_salesBot)
+    try{
+      XLSX.utils.sheet_add_json(this.worksheet_salesBot, this.jsonSheet_salesBot);
+      XLSX.writeFile(this.workbook, "data/dataTable.xlsx");
+    }catch(err){
+      console.log('Ошибка записи в таблицу sales_bot', err)
+    }
+    
+  }
+
   this.writeOff_Passport = (instrument, colName, region, count) => {
     let name = instrument[colName].toLowerCase();
 
@@ -147,21 +169,10 @@ function TableInfo() {
   };
 
   this.setLastChangeDate = (jsonSheet) => {
-    dateFild = jsonSheet.find(
-      (item) => item["Комплектация"] || item["Инструменты"] || item["Паспорт"]
-    );
-    curDate = `${new Date().getDate()}.${
-      new Date().getMonth() + 1 < 10
-        ? `0${new Date().getMonth() + 1}`
-        : new Date().getMonth() + 1
-    }.${new Date().getFullYear()} ${
-      new Date().getHours() < 10
-        ? `0${new Date().getHours()}`
-        : new Date().getHours()
-    }:${
-      new Date().getMinutes() < 10
-        ? `0${new Date().getMinutes()}`
-        : new Date().getMinutes()
+    dateFild = jsonSheet.find( (item) => item["Комплектация"] || item["Инструменты"] || item["Паспорт"] );
+    const date = new Date
+    curDate = `${date.getDate()}.${ date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1}.${date.getFullYear()} ${
+      date.getHours() < 10 ? `0${date.getHours()}` : date.getHours()}:${date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes()
     }`;
     dateFild["Date"] = curDate;
   };

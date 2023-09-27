@@ -201,9 +201,7 @@ bot.on("callback_query:data", async (ctx) => {
 		if (data === "ENG" || data === "UA") {
 			ctx.session.region = data;
 
-			bot.api.sendMessage(
-				ctx.chat.id,
-				`Вы выбрали <b>${ctx.session.instrument["Инструменты"]}</b>
+			bot.api.sendMessage(ctx.chat.id, `Вы выбрали <b>${ctx.session.instrument["Инструменты"]}</b>
 Регион: <b>${ctx.session.region}</b>
         
 Сколько инстурментов желаете добавить?`, {
@@ -290,6 +288,15 @@ bot.on("callback_query:data", async (ctx) => {
 		}
 
 		if (ctx.session.states.saleInstrument || ctx.session.states.removeInstrument) {
+			if(ctx.session.states.saleInstrument){				
+				const saleInfo = {
+					"Инструмент": ctx.session.instrument["Инструменты"],
+					"Регион": ctx.session.region,
+					"Количество": ctx.session.count,
+					"Дата": ""
+				}
+				tableInfo.writeSale(saleInfo)
+			}
 
 			tableInfo.addToTable(tableInfo.worksheet_Instruments, tableInfo.jsonSheet_Instruments)
 
@@ -360,7 +367,7 @@ bot.on("callback_query:data", async (ctx) => {
 			tableInfo.writeOffItems(tableInfo.jsonSheet_Tubes, ctx.session.instrument, "Инструменты", ctx.session.count)
 
 			tableInfo.addToTable(tableInfo.worksheet_chainTubes, tableInfo.jsonSheet_chainTubes)
-			tableInfo.addToTable(tableInfo.worksheet_Tubes, tableInfo.jsonSheet_Tubes)
+			// tableInfo.addToTable(tableInfo.worksheet_Tubes, tableInfo.jsonSheet_Tubes)
 
 			ctx.session.states.addTubes = false;
 			ctx.session.states.removeTubes = false;
@@ -440,7 +447,7 @@ bot.hears(/[0-9]/, (ctx) => {
 
 	if (ctx.session.states.saleInstrument || ctx.session.states.removeInstrument) {
 		let region = `В наличии ${ctx.session.region}`;
-
+		ctx.session.count = ctx.message.text;
 		let total = [parseInt(ctx.session.instrument[region]), parseInt(ctx.message.text)].reduce((prev, curr) => prev - curr);
 
 		ctx.session.instrument[`В наличии ${ctx.session.region}`] = total;
@@ -460,11 +467,8 @@ bot.hears(/[0-9]/, (ctx) => {
 
 		ctx.session.instrument["Количество"] = total;
 
-		ctx.reply(
-			`${
-        ctx.session.states.addTubes ? "На склад было добавлено" : "Со склада было изъято" } ${ctx.message.text} ${ctx.session.instrument["Инструменты"]}`, {
-				reply_markup: writeTable
-			}
+		ctx.reply(`${ctx.session.states.addTubes ? "На склад было добавлено" : "Со склада было изъято" } ${ctx.message.text} ${ctx.session.instrument["Инструменты"]}`, {
+				reply_markup: writeTable}
 		);
 	}
 
@@ -475,9 +479,7 @@ bot.hears(/[0-9]/, (ctx) => {
 
 		ctx.session.instrument["Количество"] = total;
 
-		ctx.reply(
-			`${
-        ctx.session.states.addChainTubes ? "На склад было добавлено" : "Со склада было изъято" } ${ctx.message.text} ${ctx.session.instrument["Инструменты"]}`, {
+		ctx.reply(`${ctx.session.states.addChainTubes ? "На склад было добавлено" : "Со склада было изъято" } ${ctx.message.text} ${ctx.session.instrument["Инструменты"]}`, {
 				reply_markup: writeTable
 			}
 		);
